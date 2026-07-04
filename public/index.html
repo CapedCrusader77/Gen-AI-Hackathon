@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustIQ — Should You Trust This AI Tool?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient background -->
+  <div class="ambient">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <canvas id="dotGrid"></canvas>
+  </div>
+
+  <!-- ─── LANDING ─── -->
+  <div id="landing" class="landing">
+    <div class="landing-inner">
+      <div class="brand fade-in">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 13l3 3 7-7" stroke="url(#ic)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="ic" x1="7" y1="7" x2="17" y2="16"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
+        </div>
+        <span>TrustIQ</span>
+      </div>
+      <h1 class="fade-in d1">Should you<br><em>trust this?</em></h1>
+      <p class="tagline fade-in d2">Paste any GitHub repo. Instant trust intelligence.</p>
+      <div class="search-wrap fade-in d3">
+        <input type="text" id="repoInput" placeholder="langchain-ai/langchain" spellcheck="false" autocomplete="off">
+        <div class="search-shimmer"></div>
+      </div>
+      <div class="examples fade-in d4">
+        <a href="#" data-q="langchain-ai/langchain">LangChain</a>
+        <a href="#" data-q="run-llama/llama_index">LlamaIndex</a>
+        <a href="#" data-q="significant-gravitas/auto-gpt">AutoGPT</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DASHBOARD ─── -->
+  <div id="dashboard" class="dashboard hidden">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="brand-icon small">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 13l3 3 7-7" stroke="url(#ic2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="ic2" x1="7" y1="7" x2="17" y2="16"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
+        </div>
+        <span class="topbar-name">TrustIQ</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-repo" id="topRepo">—</span>
+      </div>
+      <input type="text" class="topbar-input" id="repoInput2" placeholder="Search another…" spellcheck="false">
+    </div>
+
+    <!-- Hero -->
+    <section class="hero anim-section">
+      <div class="ring-wrap">
+        <div class="ring-glow" id="ringGlow"></div>
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85"/>
+          <circle class="ring-fill" id="mainRing" cx="100" cy="100" r="85"/>
+        </svg>
+        <div class="ring-center">
+          <span class="ring-score" id="mainScore">—</span>
+          <span class="ring-grade" id="mainGrade">—</span>
+        </div>
+      </div>
+      <div class="hero-info">
+        <h2 id="heroName">—</h2>
+        <div class="pills" id="heroPills"></div>
+        <div class="verdicts" id="heroVerdicts"></div>
+        <p class="hero-reason" id="heroReason">—</p>
+      </div>
+    </section>
+
+    <!-- Sub-scores -->
+    <section class="sub-scores anim-section">
+      <div class="score-card glass" data-id="security">
+        <div class="sc-ring-wrap">
+          <svg viewBox="0 0 80 80"><circle class="sc-track" cx="40" cy="40" r="32"/><circle class="sc-fill" id="scSecurity" cx="40" cy="40" r="32"/></svg>
+          <span class="sc-val" id="svSecurity">—</span>
+        </div>
+        <span class="sc-label">Security</span>
+      </div>
+      <div class="score-card glass" data-id="maintenance">
+        <div class="sc-ring-wrap">
+          <svg viewBox="0 0 80 80"><circle class="sc-track" cx="40" cy="40" r="32"/><circle class="sc-fill" id="scMaintenance" cx="40" cy="40" r="32"/></svg>
+          <span class="sc-val" id="svMaintenance">—</span>
+        </div>
+        <span class="sc-label">Maintenance</span>
+      </div>
+      <div class="score-card glass" data-id="community">
+        <div class="sc-ring-wrap">
+          <svg viewBox="0 0 80 80"><circle class="sc-track" cx="40" cy="40" r="32"/><circle class="sc-fill" id="scCommunity" cx="40" cy="40" r="32"/></svg>
+          <span class="sc-val" id="svCommunity">—</span>
+        </div>
+        <span class="sc-label">Community</span>
+      </div>
+      <div class="score-card glass" data-id="supply">
+        <div class="sc-ring-wrap">
+          <svg viewBox="0 0 80 80"><circle class="sc-track" cx="40" cy="40" r="32"/><circle class="sc-fill" id="scSupply" cx="40" cy="40" r="32"/></svg>
+          <span class="sc-val" id="svSupply">—</span>
+        </div>
+        <span class="sc-label">Supply Chain</span>
+      </div>
+    </section>
+
+    <!-- Regret -->
+    <section class="regret anim-section">
+      <span class="tag">REGRET PREDICTOR</span>
+      <h3>Will you regret this in 12 months?</h3>
+      <div class="regret-body">
+        <div class="regret-circle" id="regretCircle">
+          <span class="rc-num" id="regretVal">—</span>
+          <span class="rc-sub">probability</span>
+        </div>
+        <div class="timeline">
+          <div class="tl-node"><small>Now</small><b id="fNow">—</b></div>
+          <div class="tl-line"></div>
+          <div class="tl-node"><small>3m</small><b id="f3m">—</b></div>
+          <div class="tl-line"></div>
+          <div class="tl-node"><small>6m</small><b id="f6m">—</b></div>
+          <div class="tl-line"></div>
+          <div class="tl-node"><small>12m</small><b id="f12m">—</b></div>
+        </div>
+      </div>
+      <p class="regret-text" id="regretText">—</p>
+    </section>
+
+    <!-- DNA + Deps -->
+    <section class="two-up anim-section">
+      <div class="glass card-col">
+        <span class="tag">TRUST DNA</span>
+        <canvas id="radarCanvas" width="240" height="240"></canvas>
+      </div>
+      <div class="glass card-col">
+        <span class="tag">BLAST RADIUS</span>
+        <div class="blast-area"><canvas id="blastCanvas"></canvas></div>
+        <div class="blast-tip" id="blastTip">Hover a node</div>
+      </div>
+    </section>
+
+    <!-- What-If -->
+    <section class="whatif anim-section">
+      <span class="tag">WHAT-IF SIMULATOR</span>
+      <h3>Stress-test your decision</h3>
+      <div class="toggle-grid">
+        <label class="tg glass"><input type="checkbox" id="simMaintainer"><span class="tg-switch"></span>Maintainer leaves</label>
+        <label class="tg glass"><input type="checkbox" id="simCVE"><span class="tg-switch"></span>Critical CVE found</label>
+        <label class="tg glass"><input type="checkbox" id="simCompromise"><span class="tg-switch"></span>Dependency compromised</label>
+      </div>
+      <div class="range-bar glass">
+        <span>Release inactivity</span>
+        <input type="range" min="0" max="12" value="0" id="simInactivity">
+        <b id="valInact">0 mo</b>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="chat anim-section">
+      <span class="tag">AI BOARDROOM</span>
+      <h3>Ask the executive advisor</h3>
+      <div class="chat-window glass" id="chatWindow">
+        <div class="bubble ai">Ask me anything about deploying this tool in production.</div>
+      </div>
+      <div class="chat-bar glass">
+        <input type="text" id="chatInput" placeholder="Should we deploy this to 500 developers?">
+        <button id="chatSend">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <div class="footer">Built for hackathon by TrustIQ Team</div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="loader-ring">
+      <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="40"/><defs><linearGradient id="lg" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
+    </div>
+    <span>Analyzing trust profile…</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
