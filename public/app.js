@@ -2,55 +2,6 @@
 //  TrustIQ — Super Cool Engine
 // ════════════════════════════════════════════════════════════
 
-const DATA = {
-  "langchain-ai/langchain": {
-    name:"langchain-ai/langchain", stars:"89.2k", forks:"14.1k", contrib:"2.4k contributors",
-    grade:"A-", trust:88,
-    scores:{security:96,maintenance:82,community:91,supply:88},
-    dna:{Security:95,Innovation:98,Reliability:82,Community:94,Longevity:80,Enterprise:85},
-    market:"BUY",
-    regret:{prob:12,now:88,m3:86,m6:83,m12:78,text:"Rapid API deprecation cycles are the primary regret vector. Large ecosystem lock-in makes migration costly if architectural direction shifts."},
-    decision:{verdict:"APPROVE",reason:"Recommended for enterprise deployment. Low dependency risk, clean CVE audit, and high community maintenance index."},
-    deps:{root:"langchain",rv:0,ch:[
-      {n:"pydantic",v:0,i:"Core data validation"},
-      {n:"langsmith",v:0,i:"Tracing & telemetry"},
-      {n:"pyyaml",v:1,i:"Arbitrary code exec risk on old versions"},
-      {n:"aiohttp",v:0,i:"Async HTTP stack"},
-      {n:"sqlalchemy",v:0,i:"Optional DB connector"}
-    ]}
-  },
-  "run-llama/llama_index": {
-    name:"run-llama/llama_index", stars:"34.5k", forks:"4.8k", contrib:"900+ contributors",
-    grade:"B+", trust:84,
-    scores:{security:94,maintenance:78,community:85,supply:80},
-    dna:{Security:92,Innovation:95,Reliability:78,Community:86,Longevity:75,Enterprise:82},
-    market:"HOLD",
-    regret:{prob:22,now:84,m3:81,m6:76,m12:70,text:"API restructuring and documentation drift may cause developer friction. Overlapping scope with LangChain limits unique positioning."},
-    decision:{verdict:"RESTRICT",reason:"Adoption requires sandbox isolation and security review. Good for RAG but monitor for breaking changes in minor versions."},
-    deps:{root:"llama_index",rv:0,ch:[
-      {n:"openai",v:0,i:"API client"},
-      {n:"fsspec",v:1,i:"Remote filesystem access"},
-      {n:"nltk",v:0,i:"NLP toolkit"},
-      {n:"tiktoken",v:0,i:"Token counter"}
-    ]}
-  },
-  "significant-gravitas/auto-gpt": {
-    name:"significant-gravitas/auto-gpt", stars:"164k", forks:"42.8k", contrib:"350 contributors",
-    grade:"D+", trust:42,
-    scores:{security:60,maintenance:38,community:45,supply:35},
-    dna:{Security:55,Innovation:90,Reliability:30,Community:50,Longevity:25,Enterprise:20},
-    market:"AVOID",
-    regret:{prob:88,now:42,m3:35,m6:22,m12:10,text:"Extreme abandonment risk. Core maintainer departed, commit activity collapsed, and 3 unresolved critical CVEs remain open with no triage."},
-    decision:{verdict:"BLOCK",reason:"Not approved for any deployment tier. Critical unresolved vulnerabilities, stagnant development, and unsustainable maintainer concentration."},
-    deps:{root:"autogpt",rv:3,ch:[
-      {n:"gitpython",v:2,i:"Remote code execution CVE"},
-      {n:"pillow",v:1,i:"Memory corruption vector"},
-      {n:"click",v:0,i:"CLI parser"},
-      {n:"colorama",v:0,i:"Terminal coloring"}
-    ]}
-  }
-};
-
 let state = null, base = null;
 
 // ── Boot ──
@@ -120,18 +71,21 @@ function injectRingGradient() {
 }
 
 // ════════ GO ════════
-function go(query) {
-  const q = (query || "").trim().toLowerCase();
+async function go(query) {
+  const q = (query || "").trim();
   if (!q) return;
 
   document.getElementById("loader").style.display = "flex";
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: q })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Analysis failed');
 
-  setTimeout(() => {
-    let match = null;
-    for (const k in DATA) {
-      if (k.includes(q) || q.includes(k.split("/")[1])) { match = k; break; }
-    }
-    state = match ? structuredClone(DATA[match]) : genProfile(q);
+    state = result;
     base = structuredClone(state);
 
     // Reset sim
@@ -154,28 +108,11 @@ function go(query) {
     });
 
     window.scrollTo({ top: 0 });
-  }, 600);
-}
-
-function genProfile(name) {
-  const h = [...name].reduce((a, c) => a + c.charCodeAt(0), 0);
-  const t = 50 + (h % 45);
-  const g = t >= 90 ? "A" : t >= 80 ? "A-" : t >= 70 ? "B+" : t >= 60 ? "C" : "D";
-  return {
-    name: name.includes("/") ? name : `github/${name}`,
-    stars: `${(h % 80 + 5).toFixed(1)}k`, forks: `${(h % 20 + 1).toFixed(1)}k`, contrib: `${h % 300 + 20} contributors`,
-    grade: g, trust: t,
-    scores: { security: 60 + h % 38, maintenance: 55 + h % 43, community: 65 + h % 33, supply: 60 + h % 35 },
-    dna: { Security: 60+h%35, Innovation: 70+h%28, Reliability: 50+h%45, Community: 65+h%32, Longevity: 55+h%40, Enterprise: 50+h%45 },
-    market: t > 80 ? "BUY" : t > 60 ? "HOLD" : "AVOID",
-    regret: { prob: 100 - t, now: t, m3: Math.max(20, t - 2), m6: Math.max(15, t - 6), m12: Math.max(10, t - 12), text: "Automated risk model projects standard dependency migration liabilities." },
-    decision: { verdict: t >= 80 ? "APPROVE" : t >= 55 ? "RESTRICT" : "BLOCK", reason: t >= 80 ? "Suitable for production deployment." : t >= 55 ? "Requires security review and sandbox evaluation." : "Not recommended for any deployment tier." },
-    deps: { root: name.split("/").pop(), rv: h % 2, ch: [
-      { n: "urllib3", v: 0, i: "HTTP client" },
-      { n: "requests", v: 0, i: "Networking" },
-      { n: "certifi", v: h % 2, i: "TLS certificates" }
-    ]}
-  };
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    document.getElementById("loader").style.display = "none";
+  }
 }
 
 // ════════ RENDER ════════
@@ -375,7 +312,7 @@ function drawBlast() {
     let hit = null;
     blastNodes.forEach(nd => { if (Math.hypot(nd.x - mx, nd.y - my) < nd.r + 5) hit = nd; });
     document.getElementById("blastTip").textContent =
-      hit ? `${hit.n} — ${hit.v > 0 ? hit.v + ' CVE(s) ⚠️' : '✓ Clean'} — ${hit.i}` : "Hover a node";
+      hit ? `${hit.n} — ${hit.v > 0 ? 'Needs attention ⚠️' : 'Observed ✓'} — ${hit.i}` : "Hover a node";
   };
 }
 
@@ -433,18 +370,18 @@ function sendChat() {
     let r;
     if (lc.includes("deploy") || lc.includes("production") || lc.includes("adopt")) {
       r = state.trust >= 80
-        ? `With a trust score of ${state.trust}%, ${state.name} is cleared for production. Pin dependency versions and enable automated CVE scanning in your CI pipeline.`
+        ? `${state.name} has a ${state.trust}% metadata score. That is encouraging, but it is not production clearance; review its code, releases, dependencies, and security advisories before deployment.`
         : state.trust >= 55
         ? `${state.name} scores ${state.trust}%. I recommend a 30-day sandbox evaluation with monitoring before production approval. Assign a security champion.`
-        : `I would block deployment of ${state.name}. Trust is at ${state.trust}% with ${state.regret.prob}% regret probability. Consider alternatives like LangChain or CrewAI.`;
+        : `${state.name} has a ${state.trust}% metadata score. Treat the weak public signals as a reason for deeper technical and security review before deployment.`;
     } else if (lc.includes("risk") || lc.includes("concern") || lc.includes("worry")) {
-      r = `Key risk factors for ${state.name}: ${state.regret.prob}% regret probability over 12 months, security score at ${state.scores.security}%, and ${state.deps.ch.filter(c => c.v > 0).length} dependencies with known CVEs.`;
+      r = `Current metadata risk for ${state.name} is ${state.regret.prob}%. The security heuristic is ${state.scores.security}%, and ${state.deps.ch.filter(c => c.v > 0).length} observed repository signals need attention. This is not a vulnerability scan.`;
     } else if (lc.includes("500") || lc.includes("scale") || lc.includes("team") || lc.includes("developer")) {
-      r = `At enterprise scale, ${state.name}'s supply chain risk multiplier increases ~3.2x. Deploy an artifact proxy cache, implement automated breaking-change detection in CI/CD, and mandate version pinning.`;
+      r = `For a large team, validate ${state.name} in a sandbox, pin versions, use an artifact proxy, scan the resolved dependency tree, and define an upgrade owner. GitHub metadata alone cannot quantify enterprise-scale risk.`;
     } else if (lc.includes("altern") || lc.includes("instead") || lc.includes("compare")) {
-      r = `For comparison, LangChain scores 88% trust, LlamaIndex 84%, and AutoGPT only 42%. I'd recommend evaluating LangChain for production-grade applications or LlamaIndex for RAG-specific use cases.`;
+      r = `Analyze each candidate repository separately so the comparison uses live data from the same methodology. I won't invent comparison scores for repositories that have not been queried.`;
     } else {
-      r = `${state.name}: Trust ${state.trust}% (${state.grade}), Security ${state.scores.security}%, Regret Probability ${state.regret.prob}%. Market recommendation: ${state.market}. What specific aspect would you like me to analyze?`;
+      r = `${state.name}: metadata score ${state.trust}% (${state.grade}), security heuristic ${state.scores.security}%, current metadata risk ${state.regret.prob}%. Classification: ${state.market}. These values are derived from live public GitHub metadata, not a code or CVE scan.`;
     }
     typing.remove();
     box.innerHTML += `<div class="bubble ai">${r}</div>`;
