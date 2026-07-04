@@ -97,7 +97,12 @@ app.post('/api/analyze', async (req, res) => {
       (repo.archived ? 25 : 0));
     const supply = clamp(35 + (hasLockfile ? 35 : 0) + (hasSecurityPolicy ? 15 : 0) +
       (repo.security_and_analysis?.dependency_graph?.status === 'enabled' ? 15 : 0));
-    const trust = clamp(security * 0.3 + maintenance * 0.3 + communityScore * 0.25 + supply * 0.15);
+    // Transparent metadata-risk checklist (maximum 100 points).
+    const activityRisk = Math.min(30, Math.round(daysSincePush / 12));
+    const policyRisk = hasSecurityPolicy ? 0 : 20;
+    const hygieneRisk = (hasLockfile ? 0 : 15) + (hasLicense ? 0 : 15) + (repo.archived ? 20 : 0);
+    const risk = activityRisk + policyRisk + hygieneRisk;
+    const trust = 100 - risk;
     const verdict = trust >= 80 ? 'APPROVE' : trust >= 60 ? 'REVIEW' : 'CAUTION';
 
     const signals = [
@@ -130,9 +135,9 @@ app.post('/api/analyze', async (req, res) => {
       },
       market: trust >= 80 ? 'LOWER RISK' : trust >= 60 ? 'REVIEW' : 'HIGHER RISK',
       regret: {
-        prob: 100 - trust, now: trust,
-        m3: security, m6: maintenance, m12: communityScore,
-        text: 'This is a current metadata heuristic, not a future prediction. Scores use public GitHub activity, community, governance, and repository signals.'
+        prob: risk, now: risk,
+        m3: activityRisk, m6: policyRisk, m12: hygieneRisk,
+        text: `Risk = inactivity ${activityRisk}/30 + missing security policy ${policyRisk}/20 + repository hygiene ${hygieneRisk}/50. Hygiene checks lockfile, license, and archived status.`
       },
       decision: {
         verdict,

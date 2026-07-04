@@ -328,26 +328,35 @@ function simulate() {
 
   let s = structuredClone(base);
   s.simulated = true;
-  if (m) { s.trust -= 20; s.scores.maintenance -= 25; s.scores.community -= 15; s.dna.Longevity -= 30; s.dna.Reliability -= 15; }
-  if (c) { s.trust -= 25; s.scores.security -= 30; s.dna.Security -= 35; s.dna.Reliability -= 20; }
-  if (inact > 0) { const p = inact * 2.5; s.trust -= p; s.scores.maintenance -= p * 2; s.dna.Longevity -= p * 1.5; }
-  if (comp) { s.trust -= 30; s.scores.security -= 20; s.scores.supply -= 35; s.dna.Security -= 40; s.dna.Enterprise -= 30; }
+  const inactivityPenalty = Math.round(inact / 12 * 15);
+  const securityPenalty = c ? 30 : 0;
+  const hygienePenalty = (m ? 20 : 0) + (comp ? 35 : 0);
+  const scenarioPenalty = inactivityPenalty + securityPenalty + hygienePenalty;
 
-  s.trust = clamp(s.trust);
+  if (m) { s.scores.maintenance -= 25; s.scores.community -= 15; s.dna.Activity -= 25; s.dna.Community -= 15; }
+  if (c) { s.scores.security -= 30; s.dna.Security -= 35; }
+  if (inact > 0) { s.scores.maintenance -= inactivityPenalty * 2; s.dna.Activity -= inactivityPenalty * 2; }
+  if (comp) { s.scores.security -= 20; s.scores.supply -= 35; s.dna.Security -= 20; s.dna.Governance -= 30; }
+
+  s.regret.prob = Math.min(100, base.regret.prob + scenarioPenalty);
+  s.trust = 100 - s.regret.prob;
   for (const k in s.scores) s.scores[k] = clamp(s.scores[k]);
   for (const k in s.dna) s.dna[k] = clamp(s.dna[k]);
 
-  s.regret.prob = Math.min(100, Math.round(100 - s.trust + (m ? 15 : 0) + (c ? 20 : 0)));
-  s.regret.now = s.trust; s.regret.m3 = Math.max(10, s.trust - 3); s.regret.m6 = Math.max(10, s.trust - 7); s.regret.m12 = Math.max(10, s.trust - 15);
+  s.regret.now = s.regret.prob;
+  s.regret.m3 = Math.min(30, base.regret.m3 + inactivityPenalty);
+  s.regret.m6 = Math.min(50, base.regret.m6 + securityPenalty);
+  s.regret.m12 = Math.min(100, base.regret.m12 + hygienePenalty);
+  s.regret.text = `Base risk ${base.regret.prob} + scenario adjustment ${scenarioPenalty} = ${s.regret.prob}. Scenario weights: inactivity up to 15, maintainer loss 20, critical CVE 30, dependency compromise 35.`;
   s.grade = s.trust >= 90 ? "A" : s.trust >= 80 ? "A-" : s.trust >= 70 ? "B+" : s.trust >= 55 ? "C" : "D-";
-  s.market = s.trust >= 80 ? "BUY" : s.trust >= 55 ? "HOLD" : "AVOID";
-  s.decision.verdict = s.trust >= 80 ? "APPROVE" : s.trust >= 55 ? "RESTRICT" : "BLOCK";
-  s.decision.reason = s.trust >= 80 ? "Suitable for production." : s.trust >= 55 ? "Requires security review." : "Not recommended for deployment.";
+  s.market = s.trust >= 80 ? "LOWER RISK" : s.trust >= 55 ? "REVIEW" : "HIGHER RISK";
+  s.decision.verdict = s.trust >= 80 ? "REVIEW" : s.trust >= 55 ? "CAUTION" : "HIGH RISK";
+  s.decision.reason = `Simulated metadata risk: ${s.regret.prob}/100. This scenario is hypothetical and is not a vulnerability scan.`;
 
   state = s;
   render();
 }
-function clamp(v) { return Math.max(5, Math.min(100, Math.round(v))); }
+function clamp(v) { return Math.max(0, Math.min(100, Math.round(v))); }
 
 // ════════ CHAT ════════
 function sendChat() {
