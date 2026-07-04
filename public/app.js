@@ -132,7 +132,7 @@ function render() {
 
   // Animated score count
   animateCount("mainScore", s.trust);
-  document.getElementById("mainGrade").textContent = s.grade;
+  document.getElementById("mainGrade").textContent = `${s.grade} heuristic`;
 
   // Main ring
   const circ = 2 * Math.PI * 85; // ~534
@@ -155,10 +155,10 @@ function render() {
 
   // Sub scores
   const scCirc = 2 * Math.PI * 32; // ~201
-  renderSub("scSecurity", "svSecurity", s.scores.security, scCirc);
-  renderSub("scMaintenance", "svMaintenance", s.scores.maintenance, scCirc);
-  renderSub("scCommunity", "svCommunity", s.scores.community, scCirc);
-  renderSub("scSupply", "svSupply", s.scores.supply, scCirc);
+  renderSub("scSecurity", "svSecurity", s.scores.security, scCirc, s.simulated ? null : s.scoreDisplay?.security);
+  renderSub("scMaintenance", "svMaintenance", s.scores.maintenance, scCirc, s.simulated ? null : s.scoreDisplay?.maintenance);
+  renderSub("scCommunity", "svCommunity", s.scores.community, scCirc, s.simulated ? null : s.scoreDisplay?.community);
+  renderSub("scSupply", "svSupply", s.scores.supply, scCirc, s.simulated ? null : s.scoreDisplay?.supply);
 
   // Regret
   animateCount("regretVal", s.regret.prob, "%");
@@ -174,13 +174,14 @@ function render() {
   drawBlast();
 }
 
-function renderSub(ringId, valId, val, circ) {
+function renderSub(ringId, valId, val, circ, displayValue) {
   const el = document.getElementById(ringId);
   requestAnimationFrame(() => {
     el.style.strokeDashoffset = circ - (val / 100) * circ;
     el.style.stroke = val >= 80 ? "var(--mint)" : val >= 55 ? "var(--amber)" : "var(--rose)";
   });
-  animateCount(valId, val);
+  if (displayValue) document.getElementById(valId).textContent = displayValue;
+  else animateCount(valId, val);
 }
 
 // Animated number counter
@@ -326,6 +327,7 @@ function simulate() {
   document.getElementById("valInact").textContent = inact + " mo";
 
   let s = structuredClone(base);
+  s.simulated = true;
   if (m) { s.trust -= 20; s.scores.maintenance -= 25; s.scores.community -= 15; s.dna.Longevity -= 30; s.dna.Reliability -= 15; }
   if (c) { s.trust -= 25; s.scores.security -= 30; s.dna.Security -= 35; s.dna.Reliability -= 20; }
   if (inact > 0) { const p = inact * 2.5; s.trust -= p; s.scores.maintenance -= p * 2; s.dna.Longevity -= p * 1.5; }

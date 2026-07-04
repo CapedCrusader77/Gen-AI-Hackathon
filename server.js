@@ -114,6 +114,12 @@ app.post('/api/analyze', async (req, res) => {
       contrib: `${formatCount(contributors)} contributors`,
       grade: grade(trust), trust,
       scores: { security, maintenance, community: communityScore, supply },
+      scoreDisplay: {
+        security: hasSecurityPolicy ? 'Policy ✓' : 'No policy',
+        maintenance: `${Math.round(daysSincePush)}d`,
+        community: formatCount(contributors),
+        supply: hasLockfile ? 'Lockfile ✓' : 'No lockfile'
+      },
       dna: {
         Security: security,
         Activity: maintenance,
@@ -130,7 +136,7 @@ app.post('/api/analyze', async (req, res) => {
       },
       decision: {
         verdict,
-        reason: `Metadata heuristic based on live GitHub data. Last pushed ${Math.round(daysSincePush)} days ago; ${repo.open_issues_count} open issues; ${contributors} contributors.`
+        reason: `Heuristic, not a security scan. Last pushed ${Math.round(daysSincePush)} days ago; ${repo.open_issues_count} open issues and pull requests; ${contributors} contributors.`
       },
       deps: { root: repo.name, rv: signals.filter(signal => signal.v > 0).length, ch: signals },
       source: repo.html_url,
