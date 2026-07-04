@@ -1,22 +1,27 @@
-module.exports = (repoData) => `
+module.exports = function(repoData){
+
+return `
 You are an expert software supply chain security analyst.
 
 Analyze the following GitHub repository.
 
-Repository:
+Repository Data:
 
 ${JSON.stringify(repoData,null,2)}
 
-Return JSON only.
+Return ONLY JSON.
 
 {
-trustScore,
-summary,
-strengths[],
-weaknesses[],
-recommendation,
-futureRisk,
-maintenanceRisk,
-securityAdvice
+"summary":"",
+"strengths":[
+],
+"weaknesses":[
+],
+"recommendation":"",
+"futureRisk":"",
+"maintenanceRisk":"",
+"securityAdvice":""
 }
+
 `;
+}
