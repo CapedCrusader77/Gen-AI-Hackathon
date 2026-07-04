@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const { generateAIReport, generateAIChatResponse } = require('./services/geminiService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -112,7 +114,7 @@ app.post('/api/analyze', async (req, res) => {
       { n: 'Activity', v: daysSincePush <= 180 ? 0 : 1, i: `Last push ${Math.round(daysSincePush)} days ago` }
     ];
 
-    res.json({
+    const payload = {
       name: repo.full_name,
       stars: formatCount(repo.stargazers_count),
       forks: formatCount(repo.forks_count),
@@ -146,12 +148,106 @@ app.post('/api/analyze', async (req, res) => {
       deps: { root: repo.name, rv: signals.filter(signal => signal.v > 0).length, ch: signals },
       source: repo.html_url,
       analyzedAt: new Date().toISOString()
-    });
+    };
+
+    // Integrate Gemini AI Trust Report
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const rawReport = await generateAIReport({
+          name: payload.name,
+          stars: repo.stargazers_count,
+          forks: repo.forks_count,
+          contributors,
+          scores: payload.scores,
+          risk: payload.regret.prob,
+          trust: payload.trust
+        });
+        const parsedReport = parseGeminiJSON(rawReport);
+        if (parsedReport) {
+          payload.aiReport = parsedReport;
+        } else {
+          payload.aiReport = MOCK_AI_REPORT;
+        }
+      } catch (err) {
+        console.error("Error generating AI report:", err);
+        payload.aiReport = MOCK_AI_REPORT;
+      }
+    } else {
+      payload.aiReport = MOCK_AI_REPORT;
+    }
+
+    res.json(payload);
   } catch (error) {
     const status = error.status === 404 ? 404 : error.status === 403 ? 429 : 502;
     res.status(status).json({ error: error.status === 403 ? 'GitHub API rate limit reached. Try again later or configure GITHUB_TOKEN.' : error.message });
   }
 });
+
+// Chat endpoint powered by Gemini AI
+app.post('/api/chat', async (req, res) => {
+  const { repoData, question } = req.body;
+  if (!question) {
+    return res.status(400).json({ error: "Question is required." });
+  }
+
+  // Fallback responses if GEMINI_API_KEY is not configured
+  if (!process.env.GEMINI_API_KEY) {
+    const name = repoData?.name || "the repository";
+    const trust = repoData?.trust || 50;
+    const grade = repoData?.grade || "C";
+    const secVal = repoData?.scores?.security || 50;
+    const risk = repoData?.regret?.prob || 50;
+    const lc = question.toLowerCase();
+
+    let reply;
+    if (lc.includes("deploy") || lc.includes("production") || lc.includes("adopt")) {
+      reply = trust >= 80
+        ? `[Mock Answer] ${name} has a strong trust score of ${trust}%. It generally appears safe for production integration, but verify its code and dependency updates first.`
+        : trust >= 60
+        ? `[Mock Answer] ${name} has a moderate score of ${trust}%. Consider a sandbox deployment or technical review first. Do not deploy directly to production.`
+        : `[Mock Answer] ${name} has a weak score of ${trust}%. Avoid deploying this to production unless you perform a comprehensive security audit.`;
+    } else if (lc.includes("risk") || lc.includes("concern") || lc.includes("worry")) {
+      reply = `[Mock Answer] Current metadata risk for ${name} is ${risk}%. The security heuristic is ${secVal}%, and some repository signals might need attention.`;
+    } else {
+      reply = `[Mock Answer] ${name}: trust score ${trust}% (${grade}), security heuristic ${secVal}%, metadata risk ${risk}%. Configuration of GEMINI_API_KEY is required for live Gemini chatbot advice.`;
+    }
+    return res.json({ response: reply });
+  }
+
+  try {
+    const reply = await generateAIChatResponse(repoData, question);
+    res.json({ response: reply });
+  } catch (error) {
+    console.error("Error generating chat response:", error);
+    res.status(500).json({ error: "Failed to generate AI response." });
+  }
+});
+
+function parseGeminiJSON(text) {
+  try {
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error("Failed to parse Gemini JSON:", e, "Raw text:", text);
+    return null;
+  }
+}
+
+const MOCK_AI_REPORT = {
+  summary: "Mock AI Summary: Set GEMINI_API_KEY in your .env file to see live AI insights generated from the Google Gemini API.",
+  strengths: [
+    "Strong community presence and high star count indicating popularity",
+    "Open source project with community contributors"
+  ],
+  weaknesses: [
+    "Lack of explicit security policy in the repository root",
+    "High issue-to-star ratio indicating maintenance backlogs"
+  ],
+  recommendation: "Evaluate in a sandbox environment and pin versions to mitigate supply chain risks.",
+  futureRisk: "Medium risk of release stagnation if core maintainers drop off.",
+  maintenanceRisk: "Low risk based on recent active pushed commits.",
+  securityAdvice: "Set up automated vulnerability scanners (e.g. Dependabot) and review lockfiles."
+};
 
 app.listen(PORT, () => {
   console.log(`TrustIQ is running at http://localhost:${PORT}`);

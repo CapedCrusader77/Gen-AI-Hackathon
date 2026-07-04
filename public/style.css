@@ -300,6 +300,101 @@ section h3{font-size:1.25rem;font-weight:700;letter-spacing:-.3px;margin-bottom:
 .loader span{font-size:.82rem;color:var(--text2)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ════════ GEMINI AI REPORT ════════ */
+.ai-report {
+  margin-top: 32px !important;
+  padding: 32px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+.ai-report-summary {
+  padding: 20px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-size: 0.88rem;
+  background: rgba(129, 140, 248, 0.02);
+}
+.ai-report-summary h4 {
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+.ai-report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) {
+  .ai-report-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.ai-report-col {
+  padding: 20px;
+}
+.ai-report-col h4 {
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.ai-report-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ai-report-col li {
+  font-size: 0.82rem;
+  color: var(--text2);
+  position: relative;
+  padding-left: 22px;
+  line-height: 1.45;
+}
+.ai-report-col li::before {
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.ai-report-col h4.text-mint ~ ul li::before {
+  content: '✓';
+  color: var(--mint);
+}
+.ai-report-col h4.text-rose ~ ul li::before {
+  content: '⚠';
+  color: var(--rose);
+}
+.ai-report-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .ai-report-details {
+    grid-template-columns: 1fr;
+  }
+}
+.ai-detail-card {
+  padding: 18px;
+}
+.ai-detail-card h5 {
+  font-size: 0.75rem;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.ai-detail-card p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text2);
+}
+.text-mint { color: var(--mint) !important; }
+.text-rose { color: var(--rose) !important; }
+
 /* ════════ SCROLLBAR ════════ */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}

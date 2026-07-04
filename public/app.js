@@ -172,6 +172,29 @@ function render() {
 
   drawRadar();
   drawBlast();
+
+  // AI Trust Report rendering
+  const aiSec = document.getElementById("aiReportSection");
+  if (s.aiReport) {
+    aiSec.classList.remove("hidden");
+    document.getElementById("aiSummary").textContent = s.aiReport.summary || "No summary available.";
+    
+    const renderList = (elId, list) => {
+      const el = document.getElementById(elId);
+      el.innerHTML = Array.isArray(list) && list.length > 0
+        ? list.map(item => `<li>${item}</li>`).join("")
+        : `<li>None identified</li>`;
+    };
+    
+    renderList("aiStrengths", s.aiReport.strengths);
+    renderList("aiWeaknesses", s.aiReport.weaknesses);
+    
+    document.getElementById("aiFutureRisk").textContent = s.aiReport.futureRisk || "N/A";
+    document.getElementById("aiMaintenanceRisk").textContent = s.aiReport.maintenanceRisk || "N/A";
+    document.getElementById("aiSecurityAdvice").textContent = s.aiReport.securityAdvice || "N/A";
+  } else {
+    aiSec.classList.add("hidden");
+  }
 }
 
 function renderSub(ringId, valId, val, circ, displayValue) {
@@ -359,7 +382,7 @@ function simulate() {
 function clamp(v) { return Math.max(0, Math.min(100, Math.round(v))); }
 
 // ════════ CHAT ════════
-function sendChat() {
+async function sendChat() {
   const inp = document.getElementById("chatInput");
   const box = document.getElementById("chatWindow");
   const t = inp.value.trim();
@@ -376,26 +399,18 @@ function sendChat() {
   box.appendChild(typing);
   box.scrollTop = box.scrollHeight;
 
-  setTimeout(() => {
-    const lc = t.toLowerCase();
-    let r;
-    if (lc.includes("deploy") || lc.includes("production") || lc.includes("adopt")) {
-      r = state.trust >= 80
-        ? `${state.name} has a ${state.trust}% metadata score. That is encouraging, but it is not production clearance; review its code, releases, dependencies, and security advisories before deployment.`
-        : state.trust >= 55
-        ? `${state.name} scores ${state.trust}%. I recommend a 30-day sandbox evaluation with monitoring before production approval. Assign a security champion.`
-        : `${state.name} has a ${state.trust}% metadata score. Treat the weak public signals as a reason for deeper technical and security review before deployment.`;
-    } else if (lc.includes("risk") || lc.includes("concern") || lc.includes("worry")) {
-      r = `Current metadata risk for ${state.name} is ${state.regret.prob}%. The security heuristic is ${state.scores.security}%, and ${state.deps.ch.filter(c => c.v > 0).length} observed repository signals need attention. This is not a vulnerability scan.`;
-    } else if (lc.includes("500") || lc.includes("scale") || lc.includes("team") || lc.includes("developer")) {
-      r = `For a large team, validate ${state.name} in a sandbox, pin versions, use an artifact proxy, scan the resolved dependency tree, and define an upgrade owner. GitHub metadata alone cannot quantify enterprise-scale risk.`;
-    } else if (lc.includes("altern") || lc.includes("instead") || lc.includes("compare")) {
-      r = `Analyze each candidate repository separately so the comparison uses live data from the same methodology. I won't invent comparison scores for repositories that have not been queried.`;
-    } else {
-      r = `${state.name}: metadata score ${state.trust}% (${state.grade}), security heuristic ${state.scores.security}%, current metadata risk ${state.regret.prob}%. Classification: ${state.market}. These values are derived from live public GitHub metadata, not a code or CVE scan.`;
-    }
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ repoData: state, question: t })
+    });
+    const result = await res.json();
     typing.remove();
-    box.innerHTML += `<div class="bubble ai">${r}</div>`;
-    box.scrollTop = box.scrollHeight;
-  }, 700);
+    box.innerHTML += `<div class="bubble ai">${result.response || "No response received."}</div>`;
+  } catch (error) {
+    typing.remove();
+    box.innerHTML += `<div class="bubble ai error">Failed to connect to the AI advisor.</div>`;
+  }
+  box.scrollTop = box.scrollHeight;
 }
