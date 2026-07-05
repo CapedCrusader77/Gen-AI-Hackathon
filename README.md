@@ -2,212 +2,130 @@
 
 # 🛡️ TrustGraph
 
-### AI-Powered Repository Trust Analyzer
+### AI-Powered Open Source Adoption Intelligence Platform
 
-*Know before you `npm install`.*
+*Know before you build.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Made with FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NodeJS](https://img.shields.io/badge/Backend-Node.js-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![ExpressJS](https://img.shields.io/badge/Framework-Express-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![CSS3](https://img.shields.io/badge/Styling-Vanilla%20CSS-1572B6?logo=css3&logoColor=white)](https://www.w3.org/Style/CSS/)
+[![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Powered by Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=googlegemini&logoColor=white)](https://ai.google.dev/)
-[![Google Cloud](https://img.shields.io/badge/Cloud-Google%20Cloud-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Hackathon](https://img.shields.io/badge/GenAI%20Hackathon-2026-purple)](#)
 
-**[Live Demo](#-demo)** · **[Report Bug](../../issues)** · **[Request Feature](../../issues)**
+**[Live Dashboard](http://localhost:3000)** · **[Report Bug](../../issues)** · **[Request Feature](../../issues)**
 
 </div>
-
-> 💡 **Naming note:** We renamed the project from `Gen-AI-Hackathon` to **TrustGraph** — it better reflects what the product actually does (mapping the "trust graph" of a repo: maintainers, dependencies, activity, and risk) and reads better as a standalone product name outside the hackathon context. Feel free to rename back if your team prefers consistency with your submission portal.
 
 ---
 
 ## 📖 Table of Contents
 
-- [Problem Statement](#-problem-statement)
-- [Our Solution](#-our-solution)
-- [Features](#-features)
+- [Positioning & Vision](#-positioning--vision)
+- [The 10 Core Features](#-the-10-core-features)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Folder Structure](#-folder-structure)
 - [Installation Guide](#-installation-guide)
 - [Running the Project](#-running-the-project)
-- [API Workflow](#-api-workflow)
-- [Team & Module Responsibilities](#-team--module-responsibilities)
-- [Future Scope](#-future-scope)
-- [Screenshots](#-screenshots)
-- [Demo](#-demo)
+- [API Endpoints](#-api-endpoints)
 - [License](#-license)
-- [Contributors](#-contributors)
 
 ---
 
-## 🎯 Problem Statement
+## 🎯 Positioning & Vision
 
-Every day, developers pull in open-source dependencies without a reliable way to answer a simple question:
+**TrustGraph** is not a simple repository scanner. It has been built to be a **Decision Intelligence Platform**. 
 
-> **"Can I actually trust this repository?"**
+Instead of leaving users with simple vanity stats or arbitrary numbers, TrustGraph directly answers the ultimate organizational question:
+> **"Should my organization adopt this repository?"**
 
-Stars and forks are vanity metrics that are easy to game and don't reflect:
-- 🔓 Whether the project has unpatched security vulnerabilities
-- 🧑‍🤝‍🧑 Whether it depends on a single maintainer who could disappear tomorrow (bus factor)
-- 🕰️ Whether it's actively maintained or quietly abandoned
-- 📄 Whether documentation and licensing are actually usable in production
-- 🔗 Whether its own dependency tree is healthy
-
-Manually auditing a repository takes 30–60 minutes of digging through commits, issues, and README files — and most developers skip this step entirely, leading to **supply-chain risk, dead dependencies, and production incidents.**
-
-## 💡 Our Solution
-
-**TrustGraph** automates repository due-diligence. Paste a GitHub URL, and within seconds you get an **AI-generated Trust Report** that combines:
-
-1. **Deterministic signals** — pulled directly from the GitHub REST API (commits, contributors, releases, issues, license, dependency manifests)
-2. **A rule-based scoring engine** — objective, reproducible scores that don't hallucinate
-3. **Gemini-powered reasoning** — a natural-language summary, risk narrative, and final recommendation grounded in the deterministic data above
-
-The result: a **Trust Score**, a clear **Safe / Caution / High Risk** verdict, and the reasoning behind it — in the time it takes to read a tweet.
+Inspired by systems like **Bloomberg Terminal, Palantir Foundry, and Datadog**, the application translates raw telemetry from the GitHub API into boardroom recommendations, regulatory verdicts, and interactive risk models.
 
 ---
 
-## ✨ Features
+## ✨ The 10 Core Features
 
-| Category | Feature | Description |
-|---|---|---|
-| 🔍 **Core Analysis** | Repository Metadata Scan | Stars, forks, contributors, languages, license, last commit |
-| 🔍 **Core Analysis** | README & Docs Quality Check | Evaluates completeness of documentation |
-| 🔍 **Core Analysis** | Dependency Extraction | Parses `package.json`, `requirements.txt`, `go.mod`, etc. |
-| 🧠 **AI Layer** | Gemini Trust Report | Structured JSON report: score, risks, strengths, summary |
-| 🧠 **AI Layer** | Final Recommendation | ✅ Safe to Use / ⚠️ Use with Caution / ❌ High Risk |
-| 👥 **Bus-Factor Analysis** | Maintainer Concentration | Flags projects reliant on 1–2 contributors |
-| 🛡️ **Security** | CVE Scanning | Cross-references dependencies against known vulnerability databases |
-| ⚖️ **Compare Mode** | Side-by-Side Analysis | Compare two repos before choosing a dependency |
-| 💬 **RAG Chat Layer** | Ask-the-Repo Assistant | Grounded Q&A chat over the analyzed repo's data |
-| 📊 **Reporting** | Shareable Trust Reports | Exportable, linkable report pages |
+1. **Boardroom Decision Card**: Instant adoption stamps (`APPROVED`, `REVIEW REQUIRED`, `RESTRICTED`, `REJECTED`) with a confidence progress index (%) and color-coded neon risk badges.
+2. **Adoption Compliance Profiles**: Renders tailored verdicts for 7 organizational settings: **Personal Project, Startup MVP, Internal Enterprise Tool, Production SaaS, Banking, Healthcare, and Government**.
+3. **Future Viability Line Chart**: Interactive 24-month viability projection line chart powered by **Chart.js** displaying decay/stability curves.
+4. **Repository Comparison Command Center**: Side-by-side tabular comparison matrix comparing stars, forks, contributors, security, maintenance, and documentation. Declares a clear winner with detailed justification.
+5. **Dependency Blast Radius canvas simulator**: Interactive HTML Canvas network visualizer mapping dependency hierarchies. Features a **Compromise Simulation** where clicking any node cascades a red warning line back to the root, calculating affected packages and internal systems.
+6. **Repository Health Status**: Computes and displays dynamic health badges: `Strong` (Healthy), `Moderate` (Stable), or `Fragile` (Declining/Zombie).
+7. **Enterprise Readiness Score**: A single readiness gauge (0-100) reflecting security policies, licenses, active lockfiles, and contributor velocity.
+8. **AI Architect Chat Advisor**: Chat interface with preloaded, high-impact CTO questions. Generates context-grounded responses detailing risks and integration advice.
+9. **Trust History Timeline**: Vertical, chronological milestone feed mapping historical releases, activity drops, and compliance telemetry.
+10. **Top Trusted AI Tools Leaderboard**: Multi-category analytics leaderboard displaying Top MCP Servers, Agent Frameworks, RAG Frameworks, and AI SDKs.
 
 ---
 
 ## 🏗️ Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Client["🖥️ Frontend — React + TS + Vite"]
-        UI["Repo Input / Dashboard / Trust Report UI"]
+flowchart TD
+    subgraph Client["🖥️ Cyber-Terminal UI (Vanilla JS + CSS)"]
+        Dash["Dashboard / Boardroom View"]
+        Blast["Dependency Blast Radius (HTML Canvas)"]
+        Comp["Compare Command Center"]
+        Chat["AI CTO Advisor Chat"]
     end
 
-    subgraph API["⚙️ Backend — FastAPI"]
-        Router["API Router"]
-        Collector["GitHub Data Collector"]
-        Scorer["Deterministic Scoring Engine"]
-        RAG["RAG Q&A Layer"]
+    subgraph API["⚙️ Backend Express.js Server"]
+        Router["API Router (server.js)"]
+        Mock["Dynamic Fallback Generator"]
+        GeminiClient["Gemini Service Handler"]
     end
 
-    subgraph External["🌐 External Services"]
+    subgraph External["🌐 External Integrations"]
         GH["GitHub REST API"]
-        Gemini["Google Gemini API"]
-        CVE["CVE / Vulnerability DB"]
+        Gemini["Google Gemini Pro Model"]
     end
 
-    subgraph Cloud["☁️ Google Cloud"]
-        BQ["BigQuery — Analytics"]
-        Store["Cloud Storage — Reports Cache"]
-    end
+    Dash -->|"POST /api/analyze"| Router
+    Comp -->|"POST /api/compare"| Router
+    Chat -->|"POST /api/chat"| Router
 
-    UI -->|"POST /analyze"| Router
-    Router --> Collector
-    Collector -->|"fetch metadata"| GH
-    Collector -->|"check dependencies"| CVE
-    Collector --> Scorer
-    Scorer -->|"structured data"| Gemini
-    Gemini -->|"trust report JSON"| Router
-    Router -->|"render report"| UI
-    UI -->|"chat query"| RAG
-    RAG -->|"grounded answer"| Gemini
-    Router -.->|"log analysis event"| BQ
-    Router -.->|"cache report"| Store
+    Router -->|"Fetch repo stats"| GH
+    Router --> GeminiClient
+    GeminiClient -->|"Format prompts"| Gemini
+    Router -.->|"Use stats fallback if no API key"| Mock
+    
+    Gemini -->|"JSON Reports"| Router
+    Mock -->|"Deterministic JSON"| Router
+    Router -->|"Update charts & state"| Client
 ```
-
-**Flow summary:** the frontend sends a repo URL → FastAPI collects raw signals from GitHub (and a CVE feed) → a deterministic scoring engine computes objective sub-scores → Gemini receives the structured data (not raw guesswork) and produces the narrative trust report → the result is rendered back to the user and optionally logged to BigQuery for analytics.
 
 ---
 
 ## 🧰 Tech Stack
 
-<table>
-<tr>
-<td valign="top" width="25%">
-
-**Frontend**
-- React
-- TypeScript
-- Tailwind CSS
-- Vite
-
-</td>
-<td valign="top" width="25%">
-
-**Backend**
-- FastAPI
-- Python 3.11+
-
-</td>
-<td valign="top" width="25%">
-
-**AI / Data**
-- Google Gemini API
-- GitHub REST API
-
-</td>
-<td valign="top" width="25%">
-
-**Cloud / Deploy**
-- Google Cloud (BigQuery)
-- Vercel (frontend)
-- Render (backend)
-
-</td>
-</tr>
-</table>
+* **Frontend**: HTML5, Vanilla JavaScript (ES6+), Vanilla CSS (Custom properties, dark grid layout, neon status indicators), **Chart.js** (CDN).
+* **Backend**: **Node.js** with **Express.js** routing.
+* **AI Engine**: Google Gemini API via `@google/generative-ai` SDK.
+* **Fallback Handler**: High-fidelity dynamic fallback generator mapping GitHub REST API telemetry (stars, contributors, push intervals, lockfile structures, security files) into the target JSON report.
+* **Data Sources**: GitHub REST API (Octokit compatibility headers).
 
 ---
 
 ## 📁 Folder Structure
 
 ```
-trustgraph/
-├── frontend/                      # React + TS + Vite app
-│   ├── src/
-│   │   ├── components/            # UI components (ReportCard, ScoreGauge, ChatBox...)
-│   │   ├── pages/                 # Home, Report, Compare
-│   │   ├── hooks/                 # useAnalyzeRepo, useTrustReport
-│   │   ├── lib/                   # API client, formatters
-│   │   ├── types/                 # Shared TS interfaces
-│   │   └── App.tsx
-│   ├── tailwind.config.ts
-│   └── vite.config.ts
-│
-├── backend/                       # FastAPI service
-│   ├── app/
-│   │   ├── api/routes/            # /analyze, /compare, /chat endpoints
-│   │   ├── services/
-│   │   │   ├── github_collector.py    # GitHub API integration
-│   │   │   ├── dependency_parser.py   # package.json / requirements.txt parsing
-│   │   │   ├── cve_scanner.py         # Vulnerability lookups
-│   │   │   ├── scoring_engine.py      # Deterministic trust scoring
-│   │   │   └── gemini_client.py       # Prompting + Gemini integration
-│   │   ├── models/                # Pydantic schemas
-│   │   ├── core/                  # Config, settings, logging
-│   │   └── main.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── docs/
-│   ├── architecture.md
-│   └── screenshots/
-│
-├── .env.example
-├── LICENSE
-└── README.md
+Gen-AI-Hackathon/
+├── prompts/
+│   ├── trustPrompt.js             # Detailed JSON response prompt for single repo analysis
+│   └── comparePrompt.js           # Prompt schema for multi-repo comparisons
+├── public/                        # Static assets served by Express
+│   ├── app.js                     # Core application logic (tabs, Chart.js rendering, Canvas physics)
+│   ├── index.html                 # Cyber-terminal dashboard markup
+│   └── style.css                  # Dark mode, grid layout, neon indicator rules
+├── services/
+│   └── geminiService.js           # Gemini API service bindings and schema controls
+├── .env.example                   # Template env file for credentials
+├── package.json                   # Project packages & dependencies
+├── server.js                      # Express API server setup and endpoint routers
+└── README.md                      # Platform documentation (This file)
 ```
 
 ---
@@ -215,158 +133,67 @@ trustgraph/
 ## ⚙️ Installation Guide
 
 ### Prerequisites
-- Node.js ≥ 18
-- Python ≥ 3.11
-- A [GitHub Personal Access Token](https://github.com/settings/tokens) (for higher API rate limits)
-- A [Google Gemini API key](https://ai.google.dev/)
+* **Node.js** (v18 or higher recommended)
+* A **GitHub Personal Access Token (PAT)** (optional, but highly recommended to bypass API rate limits)
+* A **Google Gemini API Key** (optional, fallback system will mock responses based on real GitHub data if key is absent)
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-org>/trustgraph.git
-cd trustgraph
-```
-
-### 2. Backend setup
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp ../.env.example .env         # then fill in GITHUB_TOKEN and GEMINI_API_KEY
-```
-
-### 3. Frontend setup
-```bash
-cd ../frontend
-npm install
-cp .env.example .env.local      # set VITE_API_BASE_URL
-```
+### Setup Steps
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/CapedCrusader77/Gen-AI-Hackathon.git
+   cd Gen-AI-Hackathon
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Configure Environment Variables**:
+   Copy the example file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   Open the `.env` file and input your credentials:
+   ```env
+   PORT=3000
+   GITHUB_TOKEN=your_github_pat_token
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
 
 ---
 
 ## ▶️ Running the Project
 
-**Backend** (from `/backend`):
+To start the local web server:
 ```bash
-uvicorn app.main:app --reload --port 8000
+npm start
 ```
-
-**Frontend** (from `/frontend`):
-```bash
-npm run dev
+The server will boot and output:
+```text
+TrustGraph is running at http://localhost:3000
 ```
-
-App will be available at `http://localhost:5173`, calling the API at `http://localhost:8000`.
-
-**Docker (optional, one-shot):**
-```bash
-docker-compose up --build
-```
+Open your browser and navigate to **`http://localhost:3000`** to view the application.
 
 ---
 
-## 🔄 API Workflow
+## 🔄 API Endpoints
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant FE as Frontend
-    participant BE as FastAPI Backend
-    participant GH as GitHub API
-    participant AI as Gemini API
+### 1. `POST /api/analyze`
+Analyzes a single GitHub repository.
+* **Body**: `{"url": "owner/repository"}`
+* **Response**: Includes scores, repository data, and the `aiReport` object (due diligence risk logs, adoption readiness statuses, forecasts).
 
-    U->>FE: Paste repo URL
-    FE->>BE: POST /api/analyze { repo_url }
-    BE->>GH: Fetch metadata, contributors, commits, releases
-    GH-->>BE: Raw repository data
-    BE->>BE: Parse dependencies + run scoring engine
-    BE->>AI: Send structured signals + scoring context
-    AI-->>BE: Trust report (score, risks, strengths, summary)
-    BE-->>FE: JSON Trust Report
-    FE-->>U: Render Trust Report Dashboard
-```
+### 2. `POST /api/compare`
+Compares up to 3 repositories side-by-side.
+* **Body**: `{"urls": ["repo1/name", "repo2/name"]}`
+* **Response**: A comparison matrix declaring a winner and providing an architectural justification.
 
-**Key endpoints:**
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/analyze` | Analyze a single repository |
-| `POST` | `/api/compare` | Compare two repositories side-by-side |
-| `POST` | `/api/chat` | Ask a grounded question about an analyzed repo |
-| `GET` | `/api/report/{id}` | Retrieve a cached trust report |
-
----
-
-## 👥 Team & Module Responsibilities
-
-| Member | Module | Responsibilities |
-|---|---|---|
-| _Name 1_ | Frontend | React UI, Trust Report dashboard, Compare Mode UI |
-| _Name 2_ | Backend Core | FastAPI setup, GitHub data collector, dependency parser |
-| _Name 3_ | AI Integration | Gemini prompt design, structured report generation, RAG chat layer |
-| _Name 4_ | Data & Cloud | Scoring engine, BigQuery logging, deployment (Vercel/Render) |
-
-> ✏️ Replace names above with your actual team roster before submission.
-
----
-
-## 🚀 Future Scope
-
-- 🔮 **Future Risk Prediction** — forecast repo health trajectory using historical activity trends
-- 😖 **Repository Regret Score** — quantify likely long-term maintenance pain of adopting a dependency
-- 📊 **BigQuery Analytics Dashboard** — aggregate trust trends across analyzed repos
-- ⚡ **NVIDIA RAPIDS Acceleration** — GPU-accelerated scoring for large-scale batch analysis
-- 📈 **Looker Dashboard** — executive-level visualization of ecosystem trust data
-- 💬 **AI Chat Assistant** — expanded conversational assistant across multiple repos at once
-
----
-
-## 📸 Screenshots
-
-> _Add screenshots once the UI is ready._
-
-| Home / Repo Input | Trust Report Dashboard | Compare Mode |
-|---|---|---|
-| `docs/screenshots/home.png` | `docs/screenshots/report.png` | `docs/screenshots/compare.png` |
-
----
-
-## 🎥 Demo
-
-> 🔗 **Live App:** _[coming soon]_
-> 🎬 **Video Walkthrough:** _[coming soon]_
+### 3. `POST /api/chat`
+Answers questions regarding the analyzed repository.
+* **Body**: `{"question": "Should I adopt this in healthcare?", "repoData": { ... }}`
+* **Response**: High-fidelity architectural and compliance recommendations tailored to the query context.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙌 Contributors
-
-<table>
-<tr>
-<td align="center">
-<a href="#"><img src="https://via.placeholder.com/80" width="80px;" alt=""/><br /><sub><b>Name 1</b></sub></a>
-</td>
-<td align="center">
-<a href="#"><img src="https://via.placeholder.com/80" width="80px;" alt=""/><br /><sub><b>Name 2</b></sub></a>
-</td>
-<td align="center">
-<a href="#"><img src="https://via.placeholder.com/80" width="80px;" alt=""/><br /><sub><b>Name 3</b></sub></a>
-</td>
-<td align="center">
-<a href="#"><img src="https://via.placeholder.com/80" width="80px;" alt=""/><br /><sub><b>Name 4</b></sub></a>
-</td>
-</tr>
-</table>
-
-<div align="center">
-
-**Built with ❤️ for the GenAI Hackathon 2026**
-
-⭐ Star this repo if you find it useful!
-
-</div>
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
