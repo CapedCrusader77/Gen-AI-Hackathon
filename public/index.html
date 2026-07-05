@@ -74,6 +74,8 @@
       <!-- Terminal navigation tabs -->
       <div class="topbar-tabs">
         <button class="tab-btn active" data-tab="dashboard-view">Dashboard</button>
+        <button class="tab-btn" data-tab="twin-view">Digital Twin</button>
+        <button class="tab-btn" data-tab="ecosystem-view">Ecosystem Map</button>
         <button class="tab-btn" data-tab="blast-view">Blast Radius</button>
         <button class="tab-btn" data-tab="compare-view">Compare Center</button>
         <button class="tab-btn" data-tab="leaderboard-view">Leaderboard</button>
@@ -85,79 +87,180 @@
     <!-- ================= VIEW 1: DASHBOARD (BOARDROOM) ================= -->
     <div id="dashboard-view" class="tab-content">
       
-      <!-- TrustGraph Boardroom View -->
-      <section class="boardroom anim-section">
-        <span class="tag">TRUSTGRAPH BOARDROOM</span>
-        <h3>Executive Adoption Decision</h3>
-        
-        <div class="boardroom-card glass">
-          <div class="br-decision-wrap">
-            <div class="br-decision-badge" id="brDecision">REVIEW REQUIRED</div>
-            <div class="br-confidence">
-              <span class="bc-num" id="brConfidence">—</span>
-              <span class="bc-label">ADOPTION CONFIDENCE</span>
+      <!-- TrustGraph Boardroom & Due-Diligence View -->
+      <section class="boardroom-dd anim-section">
+        <div class="dd-dashboard-grid">
+          <!-- Boardroom Decision Card -->
+          <div class="boardroom-card glass">
+            <span class="tag">BOARDROOM ADOPTION ADVISORY</span>
+            <h3>Executive Adoption Recommendation</h3>
+            <div class="br-decision-wrap">
+              <div class="br-decision-badge" id="brDecision">APPROVE WITH REVIEW</div>
+              <div class="br-confidence">
+                <span class="bc-num" id="brConfidence">—</span>
+                <span class="bc-label">ADOPTION CONFIDENCE</span>
+              </div>
             </div>
-          </div>
-          
-          <div class="br-risks-grid">
-            <div class="br-risk-item">
-              <span class="br-risk-label">Business Risk</span>
-              <span class="br-risk-val" id="brBusinessRisk">—</span>
-            </div>
-            <div class="br-risk-item">
-              <span class="br-risk-label">Maintenance Risk</span>
-              <span class="br-risk-val" id="brMaintenanceRisk">—</span>
-            </div>
-            <div class="br-risk-item">
-              <span class="br-risk-label">Security Risk</span>
-              <span class="br-risk-val" id="brSecurityRisk">—</span>
+            <div class="br-summary">
+              <h4>Adoption Executive Summary</h4>
+              <p id="brSummaryText">Generating boardroom summary...</p>
             </div>
           </div>
 
-          <div class="br-summary">
-            <h4>Adoption Executive Summary</h4>
-            <p id="brSummaryText">Generating boardroom summary...</p>
+          <!-- 7-Factor Due-Diligence Report Card -->
+          <div class="due-diligence-card glass">
+            <span class="tag">AI TECHNOLOGY DUE-DILIGENCE AUDIT</span>
+            <h3>7-Factor Tech Risk Analysis</h3>
+            <div class="dd-risk-grid" id="ddRiskGrid">
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Technical Risk</span>
+                  <span class="dd-risk-level" id="ddTechnicalLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddTechnicalDesc">Analysis of architectural design, tech debt, and code complexity.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Security Risk</span>
+                  <span class="dd-risk-level" id="ddSecurityLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddSecurityDesc">Analysis of vulnerabilities, security policy, and lockfiles.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Maintenance Risk</span>
+                  <span class="dd-risk-level" id="ddMaintenanceLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddMaintenanceDesc">Analysis of push intervals, issue backlog, and active maintainers.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Community Risk</span>
+                  <span class="dd-risk-level" id="ddCommunityLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddCommunityDesc">Analysis of contributor distribution and bus factor safety.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Adoption Risk</span>
+                  <span class="dd-risk-level" id="ddAdoptionLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddAdoptionDesc">Analysis of licensing compliance and integration friction.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Vendor Lock-In Risk</span>
+                  <span class="dd-risk-level" id="ddVendorLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddVendorDesc">Analysis of proprietary hooks and portability constraints.</p>
+              </div>
+              <div class="dd-risk-item">
+                <div class="dd-risk-header">
+                  <span class="dd-risk-name">Future Viability Risk</span>
+                  <span class="dd-risk-level" id="ddViabilityLevel">—</span>
+                </div>
+                <p class="dd-risk-desc" id="ddViabilityDesc">Analysis of deprecation trajectory and project longevity.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Adoption Recommendation Engine -->
-      <section class="recommendations anim-section">
-        <span class="tag">ADOPTION RECOMMENDATION ENGINE</span>
-        <h3>Compliance Profiles Assessment</h3>
-        <div class="rec-grid">
-          <div class="rec-card glass" data-profile="personal">
-            <div class="rc-header"><h5>Personal Project</h5><span class="badge" id="recPersonal">REVIEW</span></div>
-            <p id="recPersonalReason">—</p>
+      <!-- AI Investment Analyst Mode -->
+      <section class="investment-analyst anim-section">
+        <span class="tag">AI INVESTMENT ANALYST MODE</span>
+        <h3>Codebase Financial Asset Telemetry</h3>
+        <div class="investment-card glass">
+          <div class="inv-header">
+            <div class="inv-verdict-wrap">
+              <span class="inv-label">INVESTMENT RECOMMENDATION</span>
+              <div class="inv-badge" id="invRecommendation">HOLD</div>
+            </div>
+            <div class="inv-ratings-grid">
+              <div class="inv-rating-item">
+                <span class="inv-rating-lbl">Growth Rating</span>
+                <span class="inv-rating-val" id="invGrowth">—</span>
+              </div>
+              <div class="inv-rating-item">
+                <span class="inv-rating-lbl">Health Rating</span>
+                <span class="inv-rating-val" id="invHealth">—</span>
+              </div>
+              <div class="inv-rating-item">
+                <span class="inv-rating-lbl">Risk Rating</span>
+                <span class="inv-rating-val" id="invRisk">—</span>
+              </div>
+              <div class="inv-rating-item">
+                <span class="inv-rating-lbl">Momentum</span>
+                <span class="inv-rating-val" id="invMomentum">—</span>
+              </div>
+              <div class="inv-rating-item">
+                <span class="inv-rating-lbl">Viability</span>
+                <span class="inv-rating-val" id="invViability">—</span>
+              </div>
+            </div>
           </div>
-          <div class="rec-card glass" data-profile="startup">
-            <div class="rc-header"><h5>Startup MVP</h5><span class="badge" id="recStartup">REVIEW</span></div>
-            <p id="recStartupReason">—</p>
-          </div>
-          <div class="rec-card glass" data-profile="enterprise">
-            <div class="rc-header"><h5>Enterprise Tool</h5><span class="badge" id="recEnterprise">REVIEW</span></div>
-            <p id="recEnterpriseReason">—</p>
-          </div>
-          <div class="rec-card glass" data-profile="saas">
-            <div class="rc-header"><h5>Production SaaS</h5><span class="badge" id="recSaaS">REVIEW</span></div>
-            <p id="recSaaSReason">—</p>
-          </div>
-          <div class="rec-card glass" data-profile="banking">
-            <div class="rc-header"><h5>Banking</h5><span class="badge" id="recBanking">REVIEW</span></div>
-            <p id="recBankingReason">—</p>
-          </div>
-          <div class="rec-card glass" data-profile="healthcare">
-            <div class="rc-header"><h5>Healthcare</h5><span class="badge" id="recHealthcare">REVIEW</span></div>
-            <p id="recHealthcareReason">—</p>
-          </div>
-          <div class="rec-card glass" data-profile="government">
-            <div class="rc-header"><h5>Government</h5><span class="badge" id="recGovernment">REVIEW</span></div>
-            <p id="recGovernmentReason">—</p>
+          <div class="inv-justification">
+            <h4>Equity Justification</h4>
+            <p id="invJustificationText">Analyzing asset metrics...</p>
           </div>
         </div>
       </section>
 
-      <!-- Metrics Row (Pre-existing indicators + Enterprise Readiness) -->
+      <!-- Flagship Feature: Adoption Readiness Matrix -->
+      <section class="readiness-matrix anim-section">
+        <span class="tag">FLAGSHIP DECISION FEATURE</span>
+        <h3>Adoption Readiness Matrix</h3>
+        <div class="matrix-grid-card glass">
+          <table class="matrix-grid-table">
+            <thead>
+              <tr>
+                <th>Compliance Environment</th>
+                <th>Safety Status</th>
+                <th>Decision Logic & Telemetry Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="matrixGridBody">
+              <tr data-env="personal">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Personal Projects</td>
+                <td><span class="badge" id="matPersonal">REVIEW</span></td>
+                <td class="env-reason" id="matPersonalReason">—</td>
+              </tr>
+              <tr data-env="startup">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Startup MVP</td>
+                <td><span class="badge" id="matStartup">REVIEW</span></td>
+                <td class="env-reason" id="matStartupReason">—</td>
+              </tr>
+              <tr data-env="enterprise">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Internal Enterprise Tool</td>
+                <td><span class="badge" id="matEnterprise">REVIEW</span></td>
+                <td class="env-reason" id="matEnterpriseReason">—</td>
+              </tr>
+              <tr data-env="saas">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg> Production SaaS</td>
+                <td><span class="badge" id="matSaaS">REVIEW</span></td>
+                <td class="env-reason" id="matSaaSReason">—</td>
+              </tr>
+              <tr data-env="healthcare">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Healthcare (HIPAA)</td>
+                <td><span class="badge" id="matHealthcare">REVIEW</span></td>
+                <td class="env-reason" id="matHealthcareReason">—</td>
+              </tr>
+              <tr data-env="banking">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Banking (Zero-Trust)</td>
+                <td><span class="badge" id="matBanking">REVIEW</span></td>
+                <td class="env-reason" id="matBankingReason">—</td>
+              </tr>
+              <tr data-env="government">
+                <td class="env-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="env-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Government Systems</td>
+                <td><span class="badge" id="matGovernment">REVIEW</span></td>
+                <td class="env-reason" id="matGovernmentReason">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Metrics Row (Telemetry indices) -->
       <section class="metrics-row anim-section">
         <div class="metric-card glass">
           <span class="mc-label">Repository Status</span>
@@ -196,48 +299,239 @@
         </div>
       </section>
 
-      <!-- History & Alternatives -->
-      <section class="history-alternatives anim-section">
-        <div class="glass card-col">
-          <span class="tag">TRUST HISTORY TIMELINE</span>
-          <h4>Historical Growth and Shift Events</h4>
-          <div class="history-timeline" id="historyTimeline">
-            <!-- Dynamically populated vertical timeline -->
+      <!-- TrustGraph Time Machine -->
+      <section class="time-machine anim-section">
+        <span class="tag">TRUSTGRAPH TIME MACHINE</span>
+        <h3>Adoption Trajectory & Forecasting</h3>
+        <div class="tm-container glass">
+          <div class="tm-cards-wrap">
+            <div class="tm-card past">
+              <span class="tm-date" id="tmPastDate">12 Months Ago</span>
+              <div class="tm-score-wrap">
+                <span class="tm-score" id="tmPastScore">—</span>
+                <span class="tm-score-lbl">TRUST SCORE</span>
+              </div>
+              <p class="tm-desc" id="tmPastReason">Loading historical data...</p>
+            </div>
+            <div class="tm-card present active">
+              <span class="tm-date" id="tmPresentDate">Today</span>
+              <div class="tm-score-wrap">
+                <span class="tm-score" id="tmPresentScore">—</span>
+                <span class="tm-score-lbl">TRUST SCORE</span>
+              </div>
+              <p class="tm-desc" id="tmPresentReason">Loading current assessment...</p>
+            </div>
+            <div class="tm-card future">
+              <span class="tm-date" id="tmFutureDate">In 12 Months</span>
+              <div class="tm-score-wrap">
+                <span class="tm-score" id="tmFutureScore">—</span>
+                <span class="tm-score-lbl">PREDICTED TRUST</span>
+              </div>
+              <p class="tm-desc" id="tmFutureReason">Loading forecast data...</p>
+            </div>
           </div>
-        </div>
-        <div class="glass card-col">
-          <span class="tag">ALTERNATIVE RISK MITIGATION</span>
-          <h4>Safer Alternatives Recommended</h4>
-          <div class="alternatives-list" id="alternativesList">
-            <!-- Alternatives list -->
+          <div class="tm-reasoning">
+            <h4>Trend & Trajectory Analysis</h4>
+            <p id="tmTrendReasoning">Analyzing shift indicators...</p>
           </div>
         </div>
       </section>
 
-      <!-- AI Architect Advisor -->
+      <!-- AI CTO Chat Advisor -->
       <section class="chat anim-section">
-        <span class="tag">AI ARCHITECT ADVISOR</span>
-        <h3>Consult the Supply Chain Intelligence Expert</h3>
+        <span class="tag">AI CTO ADVISOR</span>
+        <h3>Consult the AI CTO on Strategic Decisions</h3>
         
         <div class="chat-suggestions">
-          <button class="sug-btn">Should I adopt this?</button>
-          <button class="sug-btn">Would you deploy this in production?</button>
-          <button class="sug-btn">What concerns you most?</button>
-          <button class="sug-btn">What alternatives are safer?</button>
-          <button class="sug-btn">What risks will matter in 12 months?</button>
+          <button class="sug-btn">Would you build a startup on this?</button>
+          <button class="sug-btn">Would you use this in healthcare?</button>
+          <button class="sug-btn">Would you trust this for banking?</button>
+          <button class="sug-btn">Would you recommend this to a Fortune 500 company?</button>
         </div>
 
         <div class="chat-window glass" id="chatWindow">
-          <div class="bubble ai">Ask me anything about the safety, compliance, and viability of adopting this repository.</div>
+          <div class="bubble ai">I am your AI CTO Advisor. Ask me if you should adopt, avoid, or restrict this technology based on your organizational environment.</div>
         </div>
         <div class="chat-bar glass">
-          <input type="text" id="chatInput" placeholder="Should we deploy this in banking infrastructure?">
+          <input type="text" id="chatInput" placeholder="Would you trust this for banking infrastructure?">
           <button id="chatSend">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
       </section>
 
+    </div>
+
+    <!-- ================= VIEW: DIGITAL TWIN SIMULATOR ================= -->
+    <div id="twin-view" class="tab-content hidden">
+      <section class="twin-section anim-section">
+        <span class="tag">DIGITAL TWIN SIMULATOR</span>
+        <h3>Supply Chain Forecasting & Twin Stress-Test</h3>
+        <p class="section-desc">Simulate structural threats, activity changes, and security failures on this repository to observe how its trust score, future forecast, and adoption readiness adapt in real-time.</p>
+        
+        <div class="twin-container">
+          <!-- Simulation Controls Panel -->
+          <div class="twin-controls glass">
+            <h4>Simulation Console</h4>
+            
+            <div class="twin-control-item">
+              <div class="tci-info">
+                <span class="tci-label">Maintainer Leaves</span>
+                <span class="tci-desc">Core developer departs. Bus factor increases.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twinMaintainerLeaves">
+                <span class="slider round"></span>
+              </label>
+            </div>
+            
+            <div class="twin-control-item">
+              <div class="tci-info">
+                <span class="tci-label">Releases Stop</span>
+                <span class="tci-desc">No new updates or push activities. Release stagnation.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twinReleasesStop">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="twin-control-item">
+              <div class="tci-info">
+                <span class="tci-label">Critical CVE Appears</span>
+                <span class="tci-desc">A severe security vulnerability (CVSS > 9.0) is published.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twinCriticalCve">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="twin-control-item">
+              <div class="tci-info">
+                <span class="tci-label">Contributor Activity Drops</span>
+                <span class="tci-desc">Weekly commit volume and PR resolution rates drop by 50%.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twinActivityDrops">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="twin-control-item">
+              <div class="tci-info">
+                <span class="tci-label">Dependency Compromised</span>
+                <span class="tci-desc">Direct dependency registry version becomes compromised.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twinDepCompromised">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <button class="twin-reset-btn" id="twinResetBtn">Reset Simulator</button>
+          </div>
+
+          <!-- Forecast Recalculation Output Panel -->
+          <div class="twin-output glass">
+            <h4>Forecasting Analysis</h4>
+            <div class="twin-score-compare">
+              <div class="tsc-box">
+                <span class="tsc-num" id="twinOriginalScore">85</span>
+                <span class="tsc-lbl">Base Trust</span>
+              </div>
+              <div class="tsc-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </div>
+              <div class="tsc-box simulated">
+                <span class="tsc-num text-mint" id="twinSimulatedScore">85</span>
+                <span class="tsc-lbl">Twin Trust</span>
+              </div>
+            </div>
+
+            <div class="twin-decision-output">
+              <div class="tdo-row">
+                <span class="tdo-lbl">Original Decision</span>
+                <span class="badge approved" id="twinOriginalDecision">APPROVE</span>
+              </div>
+              <div class="tdo-row">
+                <span class="tdo-lbl">Simulated Decision</span>
+                <span class="badge approved" id="twinSimulatedDecision">APPROVE</span>
+              </div>
+            </div>
+
+            <div class="twin-charts-container">
+              <div class="twin-chart-card">
+                <h5>Simulated Trust DNA</h5>
+                <div class="twin-canvas-wrap">
+                  <canvas id="twinRadarChart"></canvas>
+                </div>
+              </div>
+              <div class="twin-chart-card">
+                <h5>Simulated 24-Month Forecast</h5>
+                <div class="twin-canvas-wrap">
+                  <canvas id="twinLineChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="twin-verdict-box" id="twinVerdictBox">
+              <h5>Simulated Impact Summary</h5>
+              <p id="twinVerdictText">Digital twin is currently running in a nominal state. Adjust settings on the left to trigger forecasting events.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= VIEW: ECOSYSTEM MAP ================= -->
+    <div id="ecosystem-view" class="tab-content hidden">
+      <section class="ecosystem-section anim-section">
+        <span class="tag">TRUSTGRAPH ECOSYSTEM MAP</span>
+        <h3>Ecosystem Trust Social Network</h3>
+        <p class="section-desc">Explore the social network of trust surrounding this repository. Nodes represent maintainers, contributors, dependencies, related projects, vulnerabilities, and alternatives. Click on any node to view detail telemetry.</p>
+        
+        <div class="ecosystem-container">
+          <div class="eco-canvas-wrap glass">
+            <canvas id="ecosystemCanvas"></canvas>
+            <div class="eco-legend">
+              <span class="legend-item"><span class="dot eco-root-dot"></span>Repository</span>
+              <span class="legend-item"><span class="dot eco-dep-dot"></span>Dependencies</span>
+              <span class="legend-item"><span class="dot eco-maint-dot"></span>Maintainers</span>
+              <span class="legend-item"><span class="dot eco-contrib-dot"></span>Contributors</span>
+              <span class="legend-item"><span class="dot eco-rel-dot"></span>Related</span>
+              <span class="legend-item"><span class="dot eco-vuln-dot"></span>Vulnerability</span>
+              <span class="legend-item"><span class="dot eco-alt-dot"></span>Alternative</span>
+            </div>
+          </div>
+          
+          <div class="eco-sidebar glass">
+            <h4>Ecosystem Inspector</h4>
+            
+            <div id="ecoSelectPrompt" class="inspector-prompt">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.3; margin-bottom: 12px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <p>Select any node in the graph to inspect its relationship and security posture.</p>
+            </div>
+
+            <div id="ecoInspectorDetails" class="inspector-details hidden">
+              <div class="console-item">
+                <span class="console-label">Node Identifier</span>
+                <span class="console-val text-mint" id="ecoNodeName">—</span>
+              </div>
+              <div class="console-item">
+                <span class="console-label">Node Class</span>
+                <span class="console-val" id="ecoNodeType">—</span>
+              </div>
+              
+              <hr class="console-sep">
+              
+              <div class="inspector-meta" id="ecoInspectorContent">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ================= VIEW 2: DEPENDENCY BLAST RADIUS ================= -->

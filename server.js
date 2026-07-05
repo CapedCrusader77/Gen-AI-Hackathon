@@ -196,21 +196,41 @@ app.post('/api/chat', async (req, res) => {
   if (!process.env.GEMINI_API_KEY) {
     const name = repoData?.name || "the repository";
     const boardroom = repoData?.aiReport?.boardroom || {};
-    const decision = boardroom.decision || "REVIEW REQUIRED";
+    const decision = boardroom.decision || "APPROVE WITH REVIEW";
     const confidence = boardroom.confidence || 75;
     const secVal = repoData?.scores?.security || 50;
     const risk = repoData?.regret?.prob || 50;
     const lc = question.toLowerCase();
 
     let reply;
-    if (lc.includes("deploy") || lc.includes("production") || lc.includes("adopt") || lc.includes("should i")) {
-      reply = `[Mock Answer] Based on Boardroom analysis, the adoption decision is **${decision}** with a confidence score of **${confidence}%**. For production integration, verify that safety controls match your compliance requirements.`;
+    if (lc.includes("startup")) {
+      if (risk > 40) {
+        reply = `[AI CTO Persona] Building a startup on ${name} is a high-risk gamble. The telemetry indicates elevated volatility (${risk}% risk index). You'd spend more time debugging upstream build systems and handling dependency drift than shipping features. I suggest looking at more mature alternatives or sandboxing this heavily.`;
+      } else {
+        reply = `[AI CTO Persona] Yes, I would build a startup on ${name}. The development velocity is strong, and a risk level of ${risk}% is well within startup risk tolerances. It gives us a substantial time-to-market advantage. Deploy it, but set up automated dependency pinning to prevent unexpected breaks.`;
+      }
+    } else if (lc.includes("healthcare") || lc.includes("medical")) {
+      if (secVal < 80) {
+        reply = `[AI CTO Persona] Absolutely not for healthcare. With a security rating of only ${secVal}%, this repo lacks the compliance hygiene (like active vulnerability disclosures and security policies) required for HIPAA-governed environments. A single supply chain exploit could compromise patient data. Look for an enterprise-certified alternative.`;
+      } else {
+        reply = `[AI CTO Persona] Adoptable for healthcare, but with strict controls. The codebase shows high security discipline (${secVal}% score). However, before putting it near HIPAA-regulated systems, run a full static analysis (SAST) and construct an isolated container interface to limit access to patient records.`;
+      }
+    } else if (lc.includes("banking") || lc.includes("finance") || lc.includes("financial")) {
+      if (secVal < 85) {
+        reply = `[AI CTO Persona] From a banking standpoint, this repository is BLOCKED. Banking requires zero trust, verified license structures, and active vulnerability tracking. This repo's scores fall below our compliance threshold. Adopt an industry-standard, vendor-backed solution instead.`;
+      } else {
+        reply = `[AI CTO Persona] Deploying in banking is permissible with a review. While security is rated high at ${secVal}%, our institutional risk mandate requires we run this repo through a private registry with strict Dependabot monitoring. Do not link it directly to general ledger services.`;
+      }
+    } else if (lc.includes("fortune 500") || lc.includes("enterprise") || lc.includes("corporat")) {
+      reply = `[AI CTO Persona] For a Fortune 500 company, the boardroom recommendation is **${decision}** (${confidence}% confidence). At scale, maintenance overhead is your biggest cost. With an activity risk of ${repoData?.regret?.m3 || 10}/30, your engineering team will need to allocate dedicated sprint capacity to review dependency updates and monitor deprecation warnings.`;
+    } else if (lc.includes("deploy") || lc.includes("production") || lc.includes("adopt") || lc.includes("should i")) {
+      reply = `[AI CTO Persona] As a CTO, my decision is **${decision}** (confidence: ${confidence}%). For any production workloads, ensure you have an isolated CI pipeline, pinned lockfiles, and a fallback vendor option in place.`;
     } else if (lc.includes("risk") || lc.includes("concern") || lc.includes("worry")) {
-      reply = `[Mock Answer] Primary concerns for ${name} include a metadata risk profile of ${risk}% and security index of ${secVal}%. Review active maintainer levels and lockfile configurations.`;
+      reply = `[AI CTO Persona] Let's look at the hard data. The technical risk profile is ${risk}% and security index is ${secVal}%. My primary concerns lie in the lack of security policies and active maintainer burn-out. We must mitigate this before shipping.`;
     } else if (lc.includes("altern")) {
-      reply = `[Mock Answer] Safe alternatives depend on your technology stack. Popular options include similar highly-rated framework variants within the community.`;
+      reply = `[AI CTO Persona] For risk mitigation, we should evaluate alternate packages. Check our Alternatives tab for community-supported, highly-maintained options that map closer to our security compliance standards.`;
     } else {
-      reply = `[Mock Answer] ${name}: boardroom decision is ${decision} (${confidence}% confidence). Configuration of GEMINI_API_KEY is required for live custom advice.`;
+      reply = `[AI CTO Persona] Evaluating ${name}: Boardroom decision is **${decision}** (${confidence}% confidence). From an engineering leadership perspective, we need to balance developer velocity with supply chain risk. Configure GEMINI_API_KEY for live, deep architectural analysis.`;
     }
     return res.json({ response: reply });
   }
@@ -363,75 +383,167 @@ function parseGeminiJSON(text) {
 
 // Generate rich dynamic mock decision intelligence reports
 function generateMockAIReport(repo, contributors, daysSincePush, hasSecurityPolicy, hasLockfile, hasLicense, trust, security, maintenance, communityScore, supply) {
-  let healthStatus = "Stable";
-  if (repo.archived) healthStatus = "Abandoned";
-  else if (daysSincePush > 365) healthStatus = "Zombie";
-  else if (daysSincePush > 180) healthStatus = "Declining";
-  else if (trust >= 80) healthStatus = "Healthy";
+  const name = repo.full_name;
+  
+  // Boardroom Decision Calculator
+  let decision = "APPROVE WITH REVIEW";
+  if (trust >= 85) decision = "APPROVE";
+  else if (trust < 55) decision = "REJECT";
+  else if (trust < 70) decision = "RESTRICT";
 
-  let decision = "REVIEW REQUIRED";
-  if (trust >= 80) decision = "APPROVED";
-  else if (trust < 55) decision = "NOT RECOMMENDED";
+  // Build risk assessment based on statistics
+  const techLevel = trust >= 80 ? "Low" : trust >= 60 ? "Medium" : "High";
+  const secLevel = hasSecurityPolicy && hasLockfile ? "Low" : (hasSecurityPolicy || hasLockfile ? "Medium" : "High");
+  const maintLevel = daysSincePush <= 60 ? "Low" : daysSincePush <= 180 ? "Medium" : "High";
+  const commLevel = contributors >= 100 ? "Low" : contributors >= 20 ? "Medium" : "High";
+  const adoptLevel = hasLicense ? "Low" : "High";
+  const lockInLevel = name.toLowerCase().includes("aws") || name.toLowerCase().includes("azure") ? "High" : "Low";
+  const futureLevel = daysSincePush > 180 || repo.archived ? "High" : (trust >= 75 ? "Low" : "Medium");
 
-  const enterpriseReadiness = Math.round(
-    (hasSecurityPolicy ? 25 : 0) + 
-    (hasLicense ? 15 : 0) + 
-    (hasLockfile ? 20 : 0) + 
-    Math.min(40, (contributors / 100) * 40)
-  );
+  const techDesc = techLevel === "Low" ? "Low architectural risk. Standard API patterns, minimal code smell, and clean design paradigms detected." : "Elevated code complexity. Significant technical debt or lack of structure might slow down integrations.";
+  const secDesc = secLevel === "Low" ? "Solid security posture. Repository implements active lockfiles, standard security disclosures, and dependency tracking." : "Gaps in supply chain security. Missing security disclosure files or unpinned transitive dependencies present vulnerability exposure.";
+  const maintDesc = maintLevel === "Low" ? "Active commit pipeline. High velocity releases and prompt issue triage indicate a healthy project lifecycle." : "Warning: Inactive release pipeline. Maintainers pushed changes " + Math.round(daysSincePush) + " days ago, suggesting support decay.";
+  const commDesc = commLevel === "Low" ? "Strong, diversified contributor ecosystem. Bus factor is high, with no single point of failure in ownership." : "High developer concentration risk. A small bus factor means if key maintainers depart, the project could instantly freeze.";
+  const adoptDesc = adoptLevel === "Low" ? "Clear open source licensing (" + (repo.license?.spdx_id || "Permissive") + "). Standard setup guidelines facilitate integration." : "High adoption risk. Ambiguous or missing licensing terms pose severe legal compliance risks for enterprise usage.";
+  const lockInDesc = lockInLevel === "Low" ? "Highly portable codebase. Uses generic libraries with zero cloud provider or platform lock-in constraints." : "Platform lock-in warning. Architecture deeply binds to vendor APIs, making migration expensive.";
+  const futureDesc = futureLevel === "Low" ? "Outstanding viability. High industry momentum and enterprise support ensure standard viability for the next 2-3 years." : "Risk of deprecation. Sluggish release trends indicate that alternative libraries will likely supersede this package within 12 months.";
 
-  const futureScore = Math.max(10, Math.round(trust - (daysSincePush > 90 ? 15 : 0)));
+  // Bloomberg Investment Mode Ratings
+  let growthRating = "B";
+  if (trust >= 88) growthRating = "A+";
+  else if (trust >= 78) growthRating = "A";
+  else if (trust >= 58) growthRating = "C";
+  else growthRating = "D";
 
+  const healthRating = trust >= 80 ? "Strong" : trust >= 60 ? "Moderate" : "Fragile";
+  const riskRating = trust >= 80 ? "Low" : trust >= 60 ? "Elevated" : "Severe";
+  const momentumRating = daysSincePush <= 30 ? "Accelerating" : daysSincePush <= 120 ? "Stagnant" : "Decelerating";
+  const viabilityRating = trust >= 75 ? "Viable" : trust >= 55 ? "At-Risk" : "Unviable";
+
+  let investmentRec = "HOLD";
+  if (trust >= 80 && daysSincePush < 90) investmentRec = "BUY";
+  else if (trust < 60 || repo.archived) investmentRec = "AVOID";
+
+  const investmentJustification = `Asset assessment for ${name}: Current telemetry outputs a trust score of ${trust}%. Growth indicators rate at ${growthRating} with a ${healthRating.toLowerCase()} balance sheet. Momentum is currently ${momentumRating.toLowerCase()} due to a push interval of ${Math.round(daysSincePush)} days. We recommend ${investmentRec} status as technical equity shows ${riskRating.toLowerCase()} exposure with ${viabilityRating.toLowerCase()} longevity.`;
+
+  // Ecosystem Map Nodes & Links
+  const owner = name.split("/")[0];
+  const repoName = name.split("/")[1];
+  const maintainers = [owner, "core-maintainer-bot"];
+  const contributorsList = ["contributor-alpha", "contributor-beta", "developer-prime"];
+  const relatedProjects = [];
   const alternatives = [];
-  const lowercaseName = repo.full_name.toLowerCase();
+
+  const lowercaseName = name.toLowerCase();
   if (lowercaseName.includes("langchain")) {
-    alternatives.push({ name: "run-llama/llama_index", reason: "More lightweight alternative specifically optimized for index creation and vector database search." });
-    alternatives.push({ name: "crewAI/crewAI", reason: "Better framework for multi-agent workflows." });
+    relatedProjects.push("langchain-ai/langgraph", "langchain-ai/langchainjs");
+    alternatives.push(
+      { name: "run-llama/llama_index", reason: "More lightweight alternative specifically optimized for index creation and vector database search." },
+      { name: "crewAI/crewAI", reason: "Better framework for multi-agent workflows." }
+    );
   } else if (lowercaseName.includes("llama")) {
-    alternatives.push({ name: "langchain-ai/langchain", reason: "More mature ecosystem with extensive integration options." });
+    relatedProjects.push("run-llama/llama-hub");
+    alternatives.push(
+      { name: "langchain-ai/langchain", reason: "More mature ecosystem with extensive integration options." }
+    );
   } else if (lowercaseName.includes("crewai")) {
-    alternatives.push({ name: "significant-gravitas/auto-gpt", reason: "Well-established agent framework for autonomous tasks." });
+    relatedProjects.push("crewAI/crewAI-tools");
+    alternatives.push(
+      { name: "significant-gravitas/auto-gpt", reason: "Well-established agent framework for autonomous tasks." }
+    );
   } else {
-    alternatives.push({ name: "expressjs/express", reason: "Standard node backend framework with robust track record." });
-    alternatives.push({ name: "koajs/koa", reason: "Lightweight backend framework developed by the creators of Express." });
+    relatedProjects.push("expressjs/multer", "expressjs/session");
+    alternatives.push(
+      { name: "koajs/koa", reason: "Lightweight backend framework developed by the creators of Express." },
+      { name: "fastify/fastify", reason: "Ultra-fast, low overhead alternative with JSON schema support." }
+    );
+  }
+
+  // Vulnerability array
+  const vulnerabilities = [];
+  if (!hasSecurityPolicy) {
+    vulnerabilities.push({
+      id: "CVE-2026-POLICY",
+      severity: "MODERATE",
+      description: "No formal security policy published. Zero-day vulnerability disclosures may be handled insecurely through public issues."
+    });
+  }
+  if (!hasLockfile) {
+    vulnerabilities.push({
+      id: "CVE-2026-LOCKFILE",
+      severity: "HIGH",
+      description: "Absence of lockfile creates vulnerability to dependency confusion and malicious transitive package upgrades in CI pipelines."
+    });
+  }
+  if (repo.archived) {
+    vulnerabilities.push({
+      id: "CVE-2026-ARCHIVE",
+      severity: "CRITICAL",
+      description: "Repository is archived by owner. Codebase is frozen and will not receive security patches for newly discovered CVEs."
+    });
   }
 
   return {
     boardroom: {
       decision,
-      confidence: Math.min(100, Math.max(30, Math.round(trust + (contributors > 100 ? 10 : -10)))),
-      businessRisk: trust >= 80 ? "Low" : trust >= 55 ? "Medium" : "High",
-      maintenanceRisk: daysSincePush <= 90 ? "Low" : daysSincePush <= 180 ? "Medium" : "High",
-      securityRisk: hasSecurityPolicy ? "Low" : "High",
-      summary: `Adoption analysis of ${repo.full_name}. Trust Score is ${trust}% with ${healthStatus.toLowerCase()} repository health. Last push was ${Math.round(daysSincePush)} days ago by a community of ${contributors} contributors.`
+      confidence: Math.min(100, Math.max(30, Math.round(trust + (contributors > 100 ? 8 : -8)))),
+      summary: `AI Decision Report for ${name}. Adopting this package yields a boardroom decision of **${decision}**. Project health stands at ${healthRating.toLowerCase()} and risk index at ${trust}%. Major factors include pushes ${Math.round(daysSincePush)} days ago by ${contributors} contributors, backed by ${hasSecurityPolicy ? "good" : "restricted"} security policy metadata.`
     },
-    adoptionProfiles: {
-      personal: { verdict: "APPROVED", reasoning: "Low stakes allow integration regardless of minor security policy or backup maintenance gaps." },
-      startup: { verdict: trust >= 60 ? "APPROVED" : "REVIEW REQUIRED", reasoning: "Prioritizes speed, but needs safety checks if trust score is critically low." },
-      enterprise: { verdict: trust >= 80 ? "APPROVED" : "REVIEW REQUIRED", reasoning: "Requires strict adherence to licensing and policy metrics." },
-      saas: { verdict: trust >= 70 ? "APPROVED" : "REVIEW REQUIRED", reasoning: "Production environment requires active dependency updates and lockfiles." },
-      banking: { verdict: trust >= 85 ? "APPROVED" : "NOT RECOMMENDED", reasoning: "Requires maximum compliance, security policy, active maintenance, and verified licenses." },
-      healthcare: { verdict: trust >= 85 ? "APPROVED" : "NOT RECOMMENDED", reasoning: "HIPAA compliance standards mandate strict vulnerability disclosure protocols." },
-      government: { verdict: trust >= 90 ? "APPROVED" : "NOT RECOMMENDED", reasoning: "Requires high supply chain assurance and clear license terms." }
+    dueDiligence: {
+      technicalRisk: { level: techLevel, description: techDesc },
+      securityRisk: { level: secLevel, description: secDesc },
+      maintenanceRisk: { level: maintLevel, description: maintDesc },
+      communityRisk: { level: commLevel, description: commDesc },
+      adoptionRisk: { level: adoptLevel, description: adoptDesc },
+      vendorLockInRisk: { level: lockInLevel, description: lockInDesc },
+      futureViabilityRisk: { level: futureLevel, description: futureDesc }
     },
-    healthStatus,
-    enterpriseReadinessScore: enterpriseReadiness,
-    futureViability: {
-      score: futureScore,
-      forecast: [
-        { period: "Current", score: futureScore },
-        { period: "6-Month", score: Math.max(0, Math.round(futureScore * 0.98)) },
-        { period: "12-Month", score: Math.max(0, Math.round(futureScore * 0.95)) },
-        { period: "24-Month", score: Math.max(0, Math.round(futureScore * 0.90)) }
-      ],
-      explanation: `Predicted stability over 24 months shows a minor decay trajectory based on current commit velocity and outstanding open issues.`
+    investmentAnalyst: {
+      growthRating,
+      healthRating,
+      riskRating,
+      momentumRating,
+      viabilityRating,
+      recommendation: investmentRec,
+      justification: investmentJustification
     },
-    timeline: [
-      { date: "12 months ago", event: "Active release cycle and key feature additions.", score: Math.min(100, futureScore + 10), type: "increase" },
-      { date: "6 months ago", event: "Slight increase in issue backlogs and pull request counts.", score: Math.min(100, futureScore + 5), type: "neutral" },
-      { date: "Current", event: `Current assessment reflecting ${daysSincePush <= 30 ? "active development" : "release stagnation"}.`, score: futureScore, type: "neutral" }
-    ],
-    alternatives
+    adoptionReadiness: {
+      personal: { verdict: trust >= 40 ? "APPROVED" : "REVIEW", reasoning: "Low stakes enable adoption irrespective of minor compliance details." },
+      startup: { verdict: trust >= 60 ? "APPROVED" : "REVIEW", reasoning: "Acceptable velocity vs safety balance for MVPs." },
+      enterprise: { verdict: trust >= 80 ? "APPROVED" : "REVIEW", reasoning: "Enterprise standards mandate active licenses and security policies." },
+      saas: { verdict: trust >= 70 ? "APPROVED" : "REVIEW", reasoning: "Production deployment requires active lockfile and dependency tracking." },
+      banking: { verdict: trust >= 85 ? "APPROVED" : (trust >= 65 ? "REVIEW" : "BLOCKED"), reasoning: "Strict financial compliance enforces zero trust on supply chains." },
+      healthcare: { verdict: trust >= 85 ? "APPROVED" : (trust >= 65 ? "REVIEW" : "BLOCKED"), reasoning: "Patient privacy laws mandate strict vulnerability protocols." },
+      government: { verdict: trust >= 90 ? "APPROVED" : (trust >= 75 ? "REVIEW" : "BLOCKED"), reasoning: "Requires maximum reliability, verified source integrity, and clear legal licensing." }
+    },
+    timeMachine: {
+      pastTrust: { score: Math.min(100, Math.round(trust * 1.05)), date: "12 months ago", reason: "Active release cycle with minor issues backlog." },
+      presentTrust: { score: trust, date: "Today", reason: `Current posture based on pushed_at status, license presence, and lockfile diagnostics.` },
+      futureTrust: { score: Math.max(0, Math.round(trust - (daysSincePush > 90 ? 12 : 2))), date: "12 months from now", reason: `Forecasted shift due to ${daysSincePush > 90 ? 'decreased maintenance updates' : 'sustained development trends'}.` },
+      trendReasoning: `Trajectory points to a ${daysSincePush > 90 ? 'declining stability curve' : 'stable, healthy outlook'} for the upcoming 12 months.`
+    },
+    ecosystemMap: {
+      maintainers,
+      contributors: contributorsList,
+      relatedProjects,
+      vulnerabilities,
+      alternatives
+    },
+    healthStatus: healthRating,
+    enterpriseReadinessScore: Math.round(
+      (hasSecurityPolicy ? 25 : 0) + 
+      (hasLicense ? 15 : 0) + 
+      (hasLockfile ? 20 : 0) + 
+      Math.min(40, (contributors / 100) * 40)
+    ),
+    scores: { security, maintenance, community: communityScore, supply },
+    scoreDisplay: {
+      security: hasSecurityPolicy ? 'Policy ✓' : 'No policy',
+      maintenance: `${Math.round(daysSincePush)}d`,
+      community: formatCount(contributors),
+      supply: hasLockfile ? 'Lockfile ✓' : 'No lockfile'
+    },
+    name
   };
 }
 

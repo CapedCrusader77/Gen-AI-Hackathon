@@ -5,6 +5,8 @@
 let state = null, base = null;
 let radarChartInstance = null;
 let lineChartInstance = null;
+let twinRadarChartInstance = null;
+let twinLineChartInstance = null;
 let activeTab = "dashboard-view";
 
 // ── Boot ──
@@ -77,6 +79,12 @@ function switchTab(tabId) {
   // Trigger repaint or recalculations
   if (tabId === "blast-view" && state) {
     setTimeout(initBlastRadius, 100);
+  }
+  if (tabId === "twin-view" && state) {
+    setTimeout(initDigitalTwin, 100);
+  }
+  if (tabId === "ecosystem-view" && state) {
+    setTimeout(initEcosystemMap, 100);
   }
 }
 
@@ -164,41 +172,86 @@ function render() {
   // Boardroom decision
   const boardroom = ai.boardroom || {};
   const decBadge = document.getElementById("brDecision");
-  decBadge.textContent = boardroom.decision || "REVIEW REQUIRED";
+  decBadge.textContent = boardroom.decision || "APPROVE WITH REVIEW";
   decBadge.className = "br-decision-badge " + (boardroom.decision || "").toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
 
   document.getElementById("brConfidence").textContent = `${boardroom.confidence || 75}%`;
-  
-  // Risk fields
-  const setRiskClass = (id, val) => {
-    const el = document.getElementById(id);
-    el.textContent = val || "Medium";
-    el.className = "br-risk-val " + (val || "medium").toLowerCase();
-  };
-  setRiskClass("brBusinessRisk", boardroom.businessRisk);
-  setRiskClass("brMaintenanceRisk", boardroom.maintenanceRisk);
-  setRiskClass("brSecurityRisk", boardroom.securityRisk);
-
   document.getElementById("brSummaryText").textContent = boardroom.summary || "Executive summary unavailable.";
 
-  // Adoption profiles
-  const profiles = ai.adoptionProfiles || {};
-  const profilesList = ["personal", "startup", "enterprise", "saas", "banking", "healthcare", "government"];
-  profilesList.forEach(prof => {
-    const data = profiles[prof] || { verdict: "REVIEW REQUIRED", reasoning: "No details." };
-    const card = document.querySelector(`.rec-card[data-profile="${prof}"]`);
-    if (card) {
-      const badge = card.querySelector(".badge");
+  // Due Diligence
+  const dd = ai.dueDiligence || {};
+  const setDD = (idPrefix, riskObj) => {
+    const levelEl = document.getElementById(`${idPrefix}Level`);
+    const descEl = document.getElementById(`${idPrefix}Desc`);
+    if (levelEl && descEl) {
+      const lvl = riskObj?.level || "Medium";
+      levelEl.textContent = lvl.toUpperCase();
+      levelEl.className = "dd-risk-level " + lvl.toLowerCase();
+      descEl.textContent = riskObj?.description || "Analysis data unavailable.";
+    }
+  };
+  setDD("ddTechnical", dd.technicalRisk || { level: "Low", description: "Minimal architectural complexity." });
+  setDD("ddSecurity", dd.securityRisk || { level: "Low", description: "Security controls active." });
+  setDD("ddMaintenance", dd.maintenanceRisk || { level: "Low", description: "Active maintainer commits." });
+  setDD("ddCommunity", dd.communityRisk || { level: "Low", description: "Robust contributor activity." });
+  setDD("ddAdoption", dd.adoptionRisk || { level: "Low", description: "Standard licensing verified." });
+  setDD("ddVendor", dd.vendorLockInRisk || { level: "Low", description: "Zero platform dependency." });
+  setDD("ddViability", dd.futureViabilityRisk || { level: "Low", description: "Strong project growth trends." });
+
+  // AI Investment Analyst Mode
+  const inv = ai.investmentAnalyst || {};
+  const invBadge = document.getElementById("invRecommendation");
+  if (invBadge) {
+    invBadge.textContent = inv.recommendation || "HOLD";
+    invBadge.className = "inv-badge " + (inv.recommendation || "hold").toLowerCase();
+  }
+  const setRating = (id, rating) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = rating || "—";
+      let quality = "medium";
+      const r = String(rating || "").toUpperCase();
+      if (r.startsWith("A") || r === "STRONG" || r === "LOW" || r === "ACCELERATING" || r === "VIABLE") quality = "low";
+      else if (r.startsWith("D") || r === "FRAGILE" || r === "SEVERE" || r === "DECELERATING" || r === "UNVIABLE") quality = "high";
+      else quality = "medium";
+      
+      el.className = "inv-rating-val " + (quality === "low" ? "text-mint" : quality === "high" ? "text-rose" : "text-amber");
+    }
+  };
+  setRating("invGrowth", inv.growthRating || "B");
+  setRating("invHealth", inv.healthRating || "Moderate");
+  setRating("invRisk", inv.riskRating || "Elevated");
+  setRating("invMomentum", inv.momentumRating || "Stagnant");
+  setRating("invViability", inv.viabilityRating || "Viable");
+  
+  const invJust = document.getElementById("invJustificationText");
+  if (invJust) {
+    invJust.textContent = inv.justification || "No investment justification provided.";
+  }
+
+  // Adoption Readiness Matrix
+  const matrix = ai.adoptionReadiness || {};
+  const envs = ["personal", "startup", "enterprise", "saas", "banking", "healthcare", "government"];
+  envs.forEach(env => {
+    const data = matrix[env] || { verdict: "REVIEW", reasoning: "No details." };
+    const badge = document.getElementById(`mat${env.charAt(0).toUpperCase() + env.slice(1)}`);
+    const reasonEl = document.getElementById(`mat${env.charAt(0).toUpperCase() + env.slice(1)}Reason`);
+    if (badge) {
       badge.textContent = data.verdict;
-      badge.className = "badge " + data.verdict.toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
-      card.querySelector("p").textContent = data.reasoning;
+      badge.className = "badge " + data.verdict.toLowerCase();
+    }
+    if (reasonEl) {
+      reasonEl.textContent = data.reasoning;
     }
   });
 
   // Metrics status badges
   const healthBadge = document.getElementById("healthStatusBadge");
-  healthBadge.textContent = (ai.healthStatus || "Stable").toUpperCase();
-  healthBadge.className = "mc-status-badge " + (ai.healthStatus || "stable").toLowerCase();
+  if (healthBadge) {
+    const hs = ai.healthStatus || (inv.healthRating === "Strong" ? "Healthy" : "Stable");
+    healthBadge.textContent = hs.toUpperCase();
+    healthBadge.className = "mc-status-badge " + hs.toLowerCase();
+  }
 
   document.getElementById("enterpriseReadinessVal").textContent = ai.enterpriseReadinessScore || 70;
   document.getElementById("subSecurity").textContent = s.scores.security;
@@ -206,39 +259,36 @@ function render() {
 
   // Render Charts
   renderRadarChart(s.dna);
-  renderViabilityChart(ai.futureViability);
+  
+  // Future viability mapping
+  const futureViability = ai.futureViability || {
+    score: s.trust - 10,
+    forecast: [
+      { period: "Current", score: s.trust },
+      { period: "6-Month", score: Math.round(s.trust * 0.98) },
+      { period: "12-Month", score: Math.round(s.trust * 0.95) },
+      { period: "24-Month", score: Math.round(s.trust * 0.90) }
+    ],
+    explanation: "Stability forecast under normal conditions."
+  };
+  renderViabilityChart(futureViability);
 
-  // Trust History timeline
-  const timelineContainer = document.getElementById("historyTimeline");
-  timelineContainer.innerHTML = "";
-  const timelineData = ai.timeline || [];
-  timelineData.forEach(item => {
-    const typeClass = (item.type || "neutral").toLowerCase();
-    timelineContainer.innerHTML += `
-      <div class="timeline-item ${typeClass}">
-        <span class="ti-date">${item.date}</span>
-        <p class="ti-event">${item.event}</p>
-        <span class="ti-score">Telemetry Index: ${item.score}</span>
-      </div>
-    `;
-  });
+  // Trust History Time Machine
+  const tm = ai.timeMachine || {};
+  const pastVal = tm.pastTrust || { score: Math.min(100, Math.round(s.trust * 1.05)), reason: "Stable releases and minor issue queue growth." };
+  const presVal = tm.presentTrust || { score: s.trust, reason: "Current supply chain audit findings and maintainer trends." };
+  const futVal = tm.futureTrust || { score: Math.max(0, Math.round(s.trust * 0.90)), reason: "Predicted decay slope based on commit speed." };
 
-  // Alternatives
-  const altContainer = document.getElementById("alternativesList");
-  altContainer.innerHTML = "";
-  const alternatives = ai.alternatives || [];
-  if (alternatives.length > 0) {
-    alternatives.forEach(alt => {
-      altContainer.innerHTML += `
-        <div class="alt-item">
-          <h5>${alt.name}</h5>
-          <p>${alt.reason}</p>
-        </div>
-      `;
-    });
-  } else {
-    altContainer.innerHTML = `<div class="alt-item"><p style="color:var(--text3)">No alternatives needed. This repository is highly recommended.</p></div>`;
-  }
+  document.getElementById("tmPastScore").textContent = `${pastVal.score || 80}%`;
+  document.getElementById("tmPastReason").textContent = pastVal.reason || "";
+  
+  document.getElementById("tmPresentScore").textContent = `${presVal.score || s.trust}%`;
+  document.getElementById("tmPresentReason").textContent = presVal.reason || "";
+  
+  document.getElementById("tmFutureScore").textContent = `${futVal.score || 70}%`;
+  document.getElementById("tmFutureReason").textContent = futVal.reason || "";
+  
+  document.getElementById("tmTrendReasoning").textContent = tm.trendReasoning || "Slight structural drift expected.";
 }
 
 // ── Chart.js integrations ──
@@ -761,4 +811,680 @@ async function sendChat() {
     box.innerHTML += `<div class="bubble ai error">Failed to connect to the AI advisor.</div>`;
   }
   box.scrollTop = box.scrollHeight;
+}
+
+// ════════ DIGITAL TWIN SIMULATOR CONTROLLER ════════
+function initDigitalTwin() {
+  if (!base) return;
+  
+  const mLeaves = document.getElementById("twinMaintainerLeaves");
+  const rStop = document.getElementById("twinReleasesStop");
+  const cCve = document.getElementById("twinCriticalCve");
+  const aDrops = document.getElementById("twinActivityDrops");
+  const dComp = document.getElementById("twinDepCompromised");
+  
+  // Set defaults to untoggled
+  mLeaves.checked = false;
+  rStop.checked = false;
+  cCve.checked = false;
+  aDrops.checked = false;
+  dComp.checked = false;
+  
+  // Attach change event listeners
+  const handler = () => recalculateDigitalTwin();
+  mLeaves.onchange = handler;
+  rStop.onchange = handler;
+  cCve.onchange = handler;
+  aDrops.onchange = handler;
+  dComp.onchange = handler;
+  
+  document.getElementById("twinResetBtn").onclick = () => {
+    mLeaves.checked = false;
+    rStop.checked = false;
+    cCve.checked = false;
+    aDrops.checked = false;
+    dComp.checked = false;
+    recalculateDigitalTwin();
+  };
+  
+  recalculateDigitalTwin();
+}
+
+function recalculateDigitalTwin() {
+  if (!base) return;
+  
+  let simSecurity = Math.max(0, base.scores.security);
+  let simMaintenance = Math.max(0, base.scores.maintenance);
+  let simCommunity = Math.max(0, base.scores.community);
+  let simSupply = Math.max(0, base.scores.supply);
+  
+  const maintainerLeaves = document.getElementById("twinMaintainerLeaves").checked;
+  const releasesStop = document.getElementById("twinReleasesStop").checked;
+  const criticalCve = document.getElementById("twinCriticalCve").checked;
+  const activityDrops = document.getElementById("twinActivityDrops").checked;
+  const depCompromised = document.getElementById("twinDepCompromised").checked;
+  
+  // Apply math impact constraints
+  if (maintainerLeaves) {
+    simMaintenance = Math.max(0, simMaintenance - 30);
+    simCommunity = Math.max(0, simCommunity - 15);
+  }
+  if (releasesStop) {
+    simMaintenance = Math.max(0, simMaintenance - 40);
+  }
+  if (criticalCve) {
+    simSecurity = Math.max(0, simSecurity - 50);
+  }
+  if (activityDrops) {
+    simCommunity = Math.max(0, simCommunity - 30);
+    simMaintenance = Math.max(0, simMaintenance - 10);
+  }
+  if (depCompromised) {
+    simSecurity = Math.max(0, simSecurity - 20);
+    simSupply = Math.max(0, simSupply - 45);
+  }
+  
+  // Re-run risk formula matching backend logic
+  let activityRisk = base.regret.m3;
+  let policyRisk = base.regret.m6;
+  let hygieneRisk = base.regret.m12;
+  
+  if (maintainerLeaves) activityRisk = Math.min(30, activityRisk + 15);
+  if (releasesStop) activityRisk = Math.min(30, activityRisk + 25);
+  if (criticalCve) {
+    policyRisk = Math.min(20, policyRisk + 20);
+    hygieneRisk = Math.min(50, hygieneRisk + 15);
+  }
+  if (activityDrops) activityRisk = Math.min(30, activityRisk + 10);
+  if (depCompromised) hygieneRisk = Math.min(50, hygieneRisk + 25);
+  
+  const simRisk = activityRisk + policyRisk + hygieneRisk;
+  const simTrust = Math.max(0, Math.min(100, 100 - simRisk));
+  
+  // Update Score display
+  document.getElementById("twinOriginalScore").textContent = base.trust;
+  const simScoreEl = document.getElementById("twinSimulatedScore");
+  simScoreEl.textContent = simTrust;
+  
+  if (simTrust >= 80) {
+    simScoreEl.className = "tsc-num text-mint";
+  } else if (simTrust >= 60) {
+    simScoreEl.className = "tsc-num text-amber";
+  } else {
+    simScoreEl.className = "tsc-num text-rose";
+  }
+  
+  // Verdict calculations
+  let baseDecision = base.aiReport.boardroom.decision || "APPROVE WITH REVIEW";
+  let simVerdict = "APPROVE WITH REVIEW";
+  if (simTrust >= 85) simVerdict = "APPROVE";
+  else if (simTrust < 55) simVerdict = "REJECT";
+  else if (simTrust < 70) simVerdict = "RESTRICT";
+  
+  const origDecBadge = document.getElementById("twinOriginalDecision");
+  const simDecBadge = document.getElementById("twinSimulatedDecision");
+  
+  origDecBadge.textContent = baseDecision;
+  origDecBadge.className = "badge " + baseDecision.toLowerCase().replace(/\s+/g, '-');
+  
+  simDecBadge.textContent = simVerdict;
+  simDecBadge.className = "badge " + simVerdict.toLowerCase().replace(/\s+/g, '-');
+  
+  // Render twin charts overlay
+  drawTwinRadarChart(base.dna, {
+    Security: simSecurity,
+    Activity: simMaintenance,
+    Popularity: base.dna.Popularity,
+    Community: simCommunity,
+    Maturity: base.dna.Maturity,
+    Governance: Math.max(0, base.dna.Governance - (maintainerLeaves ? 15 : 0) - (depCompromised ? 20 : 0))
+  });
+  
+  const baseForecast = base.aiReport.futureViability?.forecast || [];
+  const baseScores = baseForecast.map(f => f.score);
+  const baseLabels = baseForecast.map(f => f.period);
+  
+  const simulatedScores = [
+    simTrust,
+    Math.max(0, Math.round(simTrust * (releasesStop ? 0.7 : 0.95))),
+    Math.max(0, Math.round(simTrust * (releasesStop ? 0.4 : 0.90))),
+    Math.max(0, Math.round(simTrust * (releasesStop ? 0.1 : 0.80)))
+  ];
+  
+  drawTwinLineChart(baseLabels, baseScores, simulatedScores);
+  
+  // Recalculate summary feedback text
+  const summaryBox = document.getElementById("twinVerdictBox");
+  const textEl = document.getElementById("twinVerdictText");
+  
+  let summaryText = [];
+  if (maintainerLeaves) summaryText.push("Core developer departure drops maintenance activity indexes.");
+  if (releasesStop) summaryText.push("Stagnant release cycles trigger severe future obsolescence decay.");
+  if (criticalCve) summaryText.push("Critical CVE publication actively compromises security posture and trust integrity.");
+  if (activityDrops) summaryText.push("Contributor drop-off warning triggers code decay and support latency risks.");
+  if (depCompromised) summaryText.push("Transitive supply chain compromise directly threatens developer builds.");
+  
+  if (summaryText.length === 0) {
+    textEl.textContent = "Digital twin is currently running in a nominal state. Adjust settings on the left to trigger forecasting events.";
+    summaryBox.className = "twin-verdict-box";
+  } else {
+    textEl.innerHTML = summaryText.map(t => `• ${t}`).join("<br>");
+    if (simTrust < 55) {
+      summaryBox.className = "twin-verdict-box danger";
+    } else {
+      summaryBox.className = "twin-verdict-box warn";
+    }
+  }
+}
+
+function drawTwinRadarChart(baseDna, simDna) {
+  const ctx = document.getElementById("twinRadarChart").getContext("2d");
+  
+  if (twinRadarChartInstance) {
+    twinRadarChartInstance.destroy();
+  }
+  
+  const labels = Object.keys(baseDna);
+  const baseValues = Object.values(baseDna);
+  const simValues = Object.values(simDna);
+  
+  twinRadarChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Original State',
+          data: baseValues,
+          backgroundColor: 'rgba(99, 102, 241, 0.05)',
+          borderColor: 'rgba(99, 102, 241, 0.4)',
+          borderWidth: 1.5,
+          pointRadius: 2
+        },
+        {
+          label: 'Simulated State',
+          data: simValues,
+          backgroundColor: 'rgba(244, 63, 94, 0.15)',
+          borderColor: '#f43f5e',
+          borderWidth: 2,
+          pointBackgroundColor: '#f43f5e',
+          pointBorderColor: '#fff',
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          angleLines: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { display: false, maxTicksLimit: 3 },
+          pointLabels: {
+            color: 'rgba(255, 255, 255, 0.4)',
+            font: { family: 'Inter', size: 8, weight: '600' }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: 'rgba(255, 255, 255, 0.6)',
+            boxWidth: 10,
+            font: { size: 9, family: 'Inter' }
+          }
+        }
+      }
+    }
+  });
+}
+
+function drawTwinLineChart(labels, originalScores, simulatedScores) {
+  const ctx = document.getElementById("twinLineChart").getContext("2d");
+  
+  if (twinLineChartInstance) {
+    twinLineChartInstance.destroy();
+  }
+  
+  twinLineChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Original Forecast',
+          data: originalScores,
+          borderColor: 'rgba(168, 85, 247, 0.4)',
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          fill: false,
+          pointRadius: 2
+        },
+        {
+          label: 'Simulated Forecast',
+          data: simulatedScores,
+          borderColor: '#f43f5e',
+          borderWidth: 2.5,
+          backgroundColor: 'rgba(244, 63, 94, 0.05)',
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#f43f5e',
+          pointBorderColor: '#fff',
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.02)' },
+          ticks: { color: 'rgba(255, 255, 255, 0.4)', font: { family: 'Inter', size: 8 } }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          grid: { color: 'rgba(255, 255, 255, 0.02)' },
+          ticks: { color: 'rgba(255, 255, 255, 0.4)', font: { family: 'Inter', size: 8 } }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: 'rgba(255, 255, 255, 0.6)',
+            boxWidth: 10,
+            font: { size: 9, family: 'Inter' }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ════════ ECOSYSTEM SOCIAL NETWORK MAP ════════
+let ecosystemNodes = [];
+let ecosystemLinks = [];
+let selectedEcoNode = null;
+
+function initEcosystemMap() {
+  if (!state) return;
+  const eco = state.aiReport?.ecosystemMap || { maintainers: [], contributors: [], relatedProjects: [], vulnerabilities: [], alternatives: [] };
+  
+  const c = document.getElementById("ecosystemCanvas");
+  const area = c.parentElement;
+  c.width = area.clientWidth;
+  c.height = area.clientHeight || 450;
+  
+  const cx = c.width / 2;
+  const cy = c.height / 2;
+  
+  selectedEcoNode = null;
+  document.getElementById("ecoSelectPrompt").classList.remove("hidden");
+  document.getElementById("ecoInspectorDetails").classList.add("hidden");
+  
+  // Assemble Graph Nodes
+  ecosystemNodes = [];
+  ecosystemLinks = [];
+  
+  // 1. Root Repository Node
+  ecosystemNodes.push({
+    id: "repo-root",
+    label: state.name,
+    type: "repository",
+    x: cx,
+    y: cy,
+    r: 20,
+    meta: {
+      stars: state.stars,
+      forks: state.forks,
+      readiness: state.enterpriseReadinessScore || 70,
+      trust: state.trust,
+      license: state.aiReport?.dueDiligence?.adoptionRisk?.description || "MIT License"
+    }
+  });
+  
+  // Concentric ring radii
+  const r1 = 90;  // Maintainers & Contributors
+  const r2 = 150; // Dependencies & Organizations
+  const r3 = 210; // Vulnerabilities & Alternatives
+  
+  // 2. Maintainers (Ring 1)
+  const maintainers = eco.maintainers || ["core-developer"];
+  maintainers.forEach((m, i) => {
+    const angle = (Math.PI * 1.2) + (i * 0.25);
+    const nid = `maint-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: m,
+      type: "maintainer",
+      x: cx + r1 * Math.cos(angle),
+      y: cy + r1 * Math.sin(angle),
+      r: 10,
+      meta: {
+        role: "Core Repository Committer",
+        publishAccess: "Yes",
+        status: "Active"
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "maintains" });
+  });
+  
+  // 3. Contributors (Ring 1)
+  const contributors = eco.contributors || ["dev-alpha", "dev-beta"];
+  contributors.forEach((contrib, i) => {
+    const angle = (Math.PI * 0.7) - (i * 0.22);
+    const nid = `contrib-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: contrib,
+      type: "contributor",
+      x: cx + r1 * Math.cos(angle),
+      y: cy + r1 * Math.sin(angle),
+      r: 9,
+      meta: {
+        commitsMerged: Math.round(15 + Math.random() * 40),
+        pullRequests: "Approved",
+        status: "External Contributor"
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "contributed_to" });
+  });
+  
+  // 4. Dependencies (Ring 2)
+  const dependencies = ["lodash", "express", "dotenv", "axios"];
+  dependencies.forEach((dep, i) => {
+    const angle = (Math.PI * 0.15) + (i * 0.18);
+    const nid = `dep-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: dep,
+      type: "dependency",
+      x: cx + r2 * Math.cos(angle),
+      y: cy + r2 * Math.sin(angle),
+      r: 12,
+      meta: {
+        nature: "Runtime Package dependency",
+        lockfileState: state.scoreDisplay?.supply || "Lockfile verified ✓",
+        licensing: "Permissive Open Source"
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "depends_on" });
+  });
+  
+  // 5. Related Projects (Ring 2)
+  const related = eco.relatedProjects || [];
+  related.forEach((rel, i) => {
+    const angle = (-Math.PI * 0.2) - (i * 0.22);
+    const nid = `related-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: rel,
+      type: "related",
+      x: cx + r2 * Math.cos(angle),
+      y: cy + r2 * Math.sin(angle),
+      r: 11,
+      meta: {
+        organization: rel.split("/")[0],
+        relationship: "Common Organization Framework",
+        longevity: "High"
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "related_to" });
+  });
+  
+  // 6. Vulnerabilities (Ring 3)
+  const vulnerabilities = eco.vulnerabilities || [];
+  vulnerabilities.forEach((v, i) => {
+    const angle = Math.PI * 0.45;
+    const nid = `vuln-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: v.id,
+      type: "vulnerability",
+      x: cx + r3 * Math.cos(angle),
+      y: cy + (r3 - 40) * Math.sin(angle),
+      r: 10,
+      meta: {
+        severity: v.severity,
+        cveId: v.id,
+        description: v.description
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "warning_signal", style: "danger" });
+  });
+  
+  // 7. Alternatives (Ring 3)
+  const alternatives = eco.alternatives || [];
+  alternatives.forEach((alt, i) => {
+    const angle = (Math.PI * 1.5) + (i * 0.25);
+    const nid = `alt-${i}`;
+    ecosystemNodes.push({
+      id: nid,
+      label: alt.name,
+      type: "alternative",
+      x: cx + r3 * Math.cos(angle),
+      y: cy + r3 * Math.sin(angle),
+      r: 11,
+      meta: {
+        packageName: alt.name,
+        justification: alt.reason,
+        migrationCost: "Low-Medium"
+      }
+    });
+    ecosystemLinks.push({ source: nid, target: "repo-root", relation: "alternative_to", style: "dashed" });
+  });
+  
+  // Register Canvas Interactivity
+  c.onmousemove = (e) => {
+    const r = c.getBoundingClientRect();
+    const mx = e.clientX - r.left;
+    const my = e.clientY - r.top;
+    let hovered = null;
+    
+    ecosystemNodes.forEach(node => {
+      if (Math.hypot(node.x - mx, node.y - my) < node.r + 5) {
+        hovered = node;
+      }
+    });
+    
+    drawEcosystemCanvas(hovered);
+  };
+  
+  c.onclick = (e) => {
+    const r = c.getBoundingClientRect();
+    const mx = e.clientX - r.left;
+    const my = e.clientY - r.top;
+    let clicked = null;
+    
+    ecosystemNodes.forEach(node => {
+      if (Math.hypot(node.x - mx, node.y - my) < node.r + 5) {
+        clicked = node;
+      }
+    });
+    
+    if (clicked) {
+      inspectEcoNode(clicked);
+    }
+  };
+  
+  drawEcosystemCanvas();
+}
+
+function drawEcosystemCanvas(hoveredNode = null) {
+  const c = document.getElementById("ecosystemCanvas");
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+  
+  // 1. Draw Links
+  ecosystemLinks.forEach(link => {
+    const sNode = ecosystemNodes.find(n => n.id === link.source);
+    const tNode = ecosystemNodes.find(n => n.id === link.target);
+    if (!sNode || !tNode) return;
+    
+    ctx.beginPath();
+    ctx.moveTo(sNode.x, sNode.y);
+    ctx.lineTo(tNode.x, tNode.y);
+    
+    if (link.style === "dashed") {
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1;
+    } else if (link.style === "danger") {
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "rgba(244, 63, 94, 0.6)";
+      ctx.lineWidth = 2;
+    } else {
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1.2;
+    }
+    
+    // Highlight lines if connected to hovered node
+    if (hoveredNode && (hoveredNode.id === sNode.id || hoveredNode.id === tNode.id)) {
+      ctx.strokeStyle = hoveredNode.type === "vulnerability" ? "rgba(244, 63, 94, 0.8)" : "rgba(99, 102, 241, 0.5)";
+      ctx.lineWidth = 1.8;
+    }
+    
+    ctx.stroke();
+  });
+  ctx.setLineDash([]); // Reset line dash
+  
+  // 2. Draw Nodes
+  ecosystemNodes.forEach(node => {
+    const isHovered = hoveredNode && hoveredNode.id === node.id;
+    const isSelected = selectedEcoNode && selectedEcoNode.id === node.id;
+    
+    // Node Glow Circle
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.r * 1.7, 0, Math.PI * 2);
+    
+    let glowColor = "transparent";
+    if (node.type === "repository") glowColor = "rgba(99, 102, 241, 0.08)";
+    else if (node.type === "vulnerability") glowColor = "rgba(244, 63, 94, 0.1)";
+    else if (node.type === "dependency") glowColor = "rgba(16, 185, 129, 0.05)";
+    else if (node.type === "maintainer") glowColor = "rgba(99, 102, 241, 0.05)";
+    else if (node.type === "contributor") glowColor = "rgba(168, 85, 247, 0.05)";
+    else if (node.type === "alternative") glowColor = "rgba(245, 158, 11, 0.05)";
+    
+    if (isHovered || isSelected) {
+      glowColor = node.type === "vulnerability" ? "rgba(244, 63, 94, 0.2)" : "rgba(99, 102, 241, 0.2)";
+    }
+    
+    ctx.fillStyle = glowColor;
+    ctx.fill();
+    
+    // Node Body
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+    
+    let strokeColor = "rgba(255, 255, 255, 0.15)";
+    let fillColor = "rgba(20, 20, 25, 0.9)";
+    
+    if (node.type === "repository") {
+      strokeColor = "#6366f1";
+      fillColor = "rgba(99, 102, 241, 0.15)";
+    } else if (node.type === "vulnerability") {
+      strokeColor = "#f43f5e";
+      fillColor = "rgba(244, 63, 94, 0.15)";
+    } else if (node.type === "dependency") {
+      strokeColor = "#10b981";
+      fillColor = "rgba(16, 185, 129, 0.08)";
+    } else if (node.type === "maintainer") {
+      strokeColor = "#818cf8";
+    } else if (node.type === "contributor") {
+      strokeColor = "#c084fc";
+    } else if (node.type === "alternative") {
+      strokeColor = "#fb923c";
+    }
+    
+    if (isHovered || isSelected) {
+      strokeColor = "#fff";
+    }
+    
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1.8;
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+    ctx.stroke();
+    
+    // Text Labels
+    ctx.fillStyle = isHovered ? "#fff" : "rgba(255, 255, 255, 0.65)";
+    ctx.font = node.type === "repository" ? "700 9px JetBrains Mono" : "500 8px JetBrains Mono";
+    ctx.textAlign = "center";
+    ctx.fillText(node.label, node.x, node.y - node.r - 6);
+  });
+}
+
+function inspectEcoNode(node) {
+  selectedEcoNode = node;
+  
+  document.getElementById("ecoSelectPrompt").classList.add("hidden");
+  const detailsBox = document.getElementById("ecoInspectorDetails");
+  detailsBox.classList.remove("hidden");
+  
+  document.getElementById("ecoNodeName").textContent = node.label;
+  
+  let formattedType = node.type.toUpperCase();
+  if (node.type === "rel") formattedType = "RELATED ORGANIZATION PROJECT";
+  document.getElementById("ecoNodeType").textContent = formattedType;
+  
+  const content = document.getElementById("ecoInspectorContent");
+  content.innerHTML = "";
+  
+  const meta = node.meta || {};
+  if (node.type === "repository") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Stars:</strong> <span>${meta.stars}</span></div>
+      <div class="meta-row"><strong>Forks:</strong> <span>${meta.forks}</span></div>
+      <div class="meta-row"><strong>Readiness:</strong> <span>${meta.readiness}/100</span></div>
+      <div class="meta-row"><strong>Base Trust:</strong> <span>${meta.trust}%</span></div>
+      <div class="meta-row"><strong>License Audit:</strong> <span>${meta.license}</span></div>
+    `;
+  } else if (node.type === "dependency") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Nature:</strong> <span>${meta.nature}</span></div>
+      <div class="meta-row"><strong>Lockfile Compliance:</strong> <span>${meta.lockfileState}</span></div>
+      <div class="meta-row"><strong>Legal Licensing:</strong> <span>${meta.licensing}</span></div>
+    `;
+  } else if (node.type === "maintainer") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Role:</strong> <span>${meta.role}</span></div>
+      <div class="meta-row"><strong>Registry Access:</strong> <span>${meta.publishAccess}</span></div>
+      <div class="meta-row"><strong>Activity Status:</strong> <span>${meta.status}</span></div>
+    `;
+  } else if (node.type === "contributor") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Merged Commits:</strong> <span>${meta.commitsMerged}</span></div>
+      <div class="meta-row"><strong>PR Verification:</strong> <span>${meta.pullRequests}</span></div>
+      <div class="meta-row"><strong>Community Role:</strong> <span>${meta.status}</span></div>
+    `;
+  } else if (node.type === "related") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Organization:</strong> <span>${meta.organization}</span></div>
+      <div class="meta-row"><strong>Link Context:</strong> <span>${meta.relationship}</span></div>
+      <div class="meta-row"><strong>Future Viability:</strong> <span>${meta.longevity}</span></div>
+    `;
+  } else if (node.type === "vulnerability") {
+    const sevColor = meta.severity === "CRITICAL" || meta.severity === "HIGH" ? "text-rose" : "text-amber";
+    content.innerHTML = `
+      <div class="meta-row"><strong>Severity:</strong> <span class="${sevColor}"><strong>${meta.severity}</strong></span></div>
+      <div class="meta-row"><strong>CVE Reference:</strong> <span>${meta.cveId}</span></div>
+      <div class="meta-desc-box">${meta.description}</div>
+    `;
+  } else if (node.type === "alternative") {
+    content.innerHTML = `
+      <div class="meta-row"><strong>Package Name:</strong> <span>${meta.packageName}</span></div>
+      <div class="meta-row"><strong>Migration Overhead:</strong> <span>${meta.migrationCost}</span></div>
+      <div class="meta-desc-box"><strong>Justification:</strong><br>${meta.justification}</div>
+    `;
+  }
+  
+  drawEcosystemCanvas();
 }
