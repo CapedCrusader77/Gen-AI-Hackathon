@@ -1,4 +1,11 @@
 node_modules/
 .env
 npm-debug.log*
+__pycache__/
+*.pyc
+*.db
+backend/trustgraph.db
+frontend/dist/
+frontend/node_modules/
+
 
