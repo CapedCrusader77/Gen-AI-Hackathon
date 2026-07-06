@@ -101,9 +101,11 @@ flowchart TD
     GitHubService --> GitHub
     GeminiService --> Gemini
 
-    API -->|"Trust Report"| Dashboard
-    API -->|"Comparison Results"| Compare
-    API -->|"AI Responses"| Chat
+    API --> Response["Processed Results"]
+
+    Response --> Dashboard
+    Response --> Compare
+    Response --> Chat
 ```
 
 ---
