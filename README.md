@@ -15,6 +15,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+
+
 **Gen AI Academy Hackathon 2026 Submission**
 </div>
 
@@ -65,28 +67,43 @@ Designed to provide enterprise-grade repository trust intelligence.telemetry fro
 ```mermaid
 flowchart TD
 
-    U[👤 User] --> F[🌐 React Frontend (Vite)]
+    subgraph Client["Frontend (React + Vite)"]
+        Home["Repository Input"]
+        Dashboard["Trust Dashboard"]
+        Compare["Repository Comparison"]
+        Chat["AI Chat Assistant"]
+    end
 
-    F -->|Analyze Repository| API[⚡ FastAPI Backend]
+    subgraph Backend["FastAPI Backend"]
+        API["API Router (main.py)"]
+        GitHubService["GitHub Service"]
+        GeminiService["Gemini Service"]
+        Benchmark["Benchmark Engine"]
+        Simulation["Simulation Engine"]
+        Database["SQLite Database"]
+    end
 
-    API --> G[🐙 GitHub REST API]
-    API --> AI[🤖 Google Gemini 2.5 Flash]
-    API --> DB[(🗄️ SQLite Database)]
+    subgraph External["External Services"]
+        GitHub["GitHub REST API"]
+        Gemini["Google Gemini API"]
+    end
 
-    G --> API
-    AI --> API
-    DB --> API
+    Home -->|"Analyze Repository"| API
+    Compare -->|"Compare Repositories"| API
+    Chat -->|"Ask Questions"| API
 
-    API --> R[📊 Trust Analysis Engine]
-    R --> D[📈 Trust Report Dashboard]
-    R --> C[⚖️ Repository Comparison]
-    R --> CHAT[💬 AI Chat Assistant]
-    R --> S[📉 Benchmark & Simulation]
+    API --> GitHubService
+    API --> GeminiService
+    API --> Benchmark
+    API --> Simulation
+    API --> Database
 
-    D --> F
-    C --> F
-    CHAT --> F
-    S --> F
+    GitHubService --> GitHub
+    GeminiService --> Gemini
+
+    API -->|"Trust Report"| Dashboard
+    API -->|"Comparison Results"| Compare
+    API -->|"AI Responses"| Chat
 ```
 
 ---
