@@ -13,10 +13,9 @@
 [![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Powered by Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Hackathon](https://img.shields.io/badge/GenAI%20Hackathon-2026-purple)](#)
+[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-GenAI%20Academy-blue)]
 
-**[Live Dashboard](http://localhost:3000)** · **[Report Bug](../../issues)** · **[Request Feature](../../issues)**
-
+**Gen AI Academy Hackathon 2026 Submission**
 </div>
 
 ---
@@ -42,7 +41,7 @@
 Instead of leaving users with simple vanity stats or arbitrary numbers, TrustGraph directly answers the ultimate organizational question:
 > **"Should my organization adopt this repository?"**
 
-Inspired by systems like **Bloomberg Terminal, Palantir Foundry, and Datadog**, the application translates raw telemetry from the GitHub API into boardroom recommendations, regulatory verdicts, and interactive risk models.
+Designed to provide enterprise-grade repository trust intelligence.telemetry from the GitHub API into boardroom recommendations, regulatory verdicts, and interactive risk models.
 
 ---
 
@@ -101,11 +100,13 @@ flowchart TD
 
 ## 🧰 Tech Stack
 
-* **Frontend**: HTML5, Vanilla JavaScript (ES6+), Vanilla CSS (Custom properties, dark grid layout, neon status indicators), **Chart.js** (CDN).
-* **Backend**: **Node.js** with **Express.js** routing.
-* **AI Engine**: Google Gemini API via `@google/generative-ai` SDK.
-* **Fallback Handler**: High-fidelity dynamic fallback generator mapping GitHub REST API telemetry (stars, contributors, push intervals, lockfile structures, security files) into the target JSON report.
-* **Data Sources**: GitHub REST API (Octokit compatibility headers).
+* **Frontend**: React.js, Vite, TypeScript, Tailwind CSS
+* **Backend**: Python, FastAPI
+* **AI Engine**: Google Gemini 2.5 Flash API
+* **Database**: SQLite
+* **Data Sources**: GitHub REST API
+* **Deployment**: Vercel (Frontend)
+* **AI Processing**: Repository telemetry is analyzed using Google Gemini to generate trust reports, repository comparisons, and contextual AI chat responses.
 
 ---
 
@@ -113,19 +114,32 @@ flowchart TD
 
 ```
 Gen-AI-Hackathon/
-├── prompts/
-│   ├── trustPrompt.js             # Detailed JSON response prompt for single repo analysis
-│   └── comparePrompt.js           # Prompt schema for multi-repo comparisons
-├── public/                        # Static assets served by Express
-│   ├── app.js                     # Core application logic (tabs, Chart.js rendering, Canvas physics)
-│   ├── index.html                 # Cyber-terminal dashboard markup
-│   └── style.css                  # Dark mode, grid layout, neon indicator rules
-├── services/
-│   └── geminiService.js           # Gemini API service bindings and schema controls
-├── .env.example                   # Template env file for credentials
-├── package.json                   # Project packages & dependencies
-├── server.js                      # Express API server setup and endpoint routers
-└── README.md                      # Platform documentation (This file)
+├── backend/
+│   ├── services/
+│   │   ├── benchmark_service.py      # Repository benchmark analysis
+│   │   ├── gemini_service.py         # Gemini AI integration & report generation
+│   │   ├── github_service.py         # GitHub API telemetry collection
+│   │   └── simulation_service.py     # Trust score simulation engine
+│   ├── tests/                        # Backend test cases
+│   ├── config.py                     # Environment configuration
+│   ├── database.py                   # SQLite database operations
+│   ├── main.py                       # FastAPI application entry point
+│   ├── requirements.txt              # Python dependencies
+│   └── trustgraph.db                 # SQLite database
+│
+├── frontend/
+│   ├── public/                       # Static assets
+│   ├── src/                          # React application source
+│   ├── package.json                  # Frontend dependencies
+│   ├── vite.config.ts                # Vite configuration
+│   └── tsconfig.json                 # TypeScript configuration
+├── package.json                      # Root project configuration
+│
+├── .agents/                          # AI agent configuration
+├── .env.example                      # Environment variables template
+├── .gitignore
+├── LICENSE
+└── README.md 
 ```
 
 ---
@@ -150,7 +164,7 @@ Gen-AI-Hackathon/
 3. **Configure Environment Variables**:
    Copy the example file to `.env`:
    ```bash
-   cp .env.example .env
+   
    ```
    Open the `.env` file and input your credentials:
    ```env
@@ -169,9 +183,9 @@ npm start
 ```
 The server will boot and output:
 ```text
-TrustGraph is running at http://localhost:3000
+Application starts successfully.
 ```
-Open your browser and navigate to **`http://localhost:3000`** to view the application.
+Open the application in your browser.
 
 ---
 
@@ -179,12 +193,14 @@ Open your browser and navigate to **`http://localhost:3000`** to view the applic
 
 ### 1. `POST /api/analyze`
 Analyzes a single GitHub repository.
-* **Body**: `{"url": "owner/repository"}`
+* Input:
+GitHub Repository URL
 * **Response**: Includes scores, repository data, and the `aiReport` object (due diligence risk logs, adoption readiness statuses, forecasts).
 
 ### 2. `POST /api/compare`
 Compares up to 3 repositories side-by-side.
-* **Body**: `{"urls": ["repo1/name", "repo2/name"]}`
+* Input:
+GitHub Repository URL
 * **Response**: A comparison matrix declaring a winner and providing an architectural justification.
 
 ### 3. `POST /api/chat`
