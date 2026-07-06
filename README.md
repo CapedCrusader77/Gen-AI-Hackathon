@@ -6,15 +6,15 @@
 
 *Know before you build.*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![NodeJS](https://img.shields.io/badge/Backend-Node.js-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![ExpressJS](https://img.shields.io/badge/Framework-Express-000000?logo=express&logoColor=white)](https://expressjs.com/)
-[![CSS3](https://img.shields.io/badge/Styling-Vanilla%20CSS-1572B6?logo=css3&logoColor=white)](https://www.w3.org/Style/CSS/)
-[![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Frontend](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Language-Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Powered by Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=googlegemini&logoColor=white)](https://ai.google.dev/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-GenAI%20Academy-blue)]
-
+[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-GenAI%20Academy-blue)](https://cloud.google.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 **Gen AI Academy Hackathon 2026 Submission**
 </div>
 
@@ -64,36 +64,29 @@ Designed to provide enterprise-grade repository trust intelligence.telemetry fro
 
 ```mermaid
 flowchart TD
-    subgraph Client["🖥️ Cyber-Terminal UI (Vanilla JS + CSS)"]
-        Dash["Dashboard / Boardroom View"]
-        Blast["Dependency Blast Radius (HTML Canvas)"]
-        Comp["Compare Command Center"]
-        Chat["AI CTO Advisor Chat"]
-    end
 
-    subgraph API["⚙️ Backend Express.js Server"]
-        Router["API Router (server.js)"]
-        Mock["Dynamic Fallback Generator"]
-        GeminiClient["Gemini Service Handler"]
-    end
+    U[👤 User] --> F[🌐 React Frontend (Vite)]
 
-    subgraph External["🌐 External Integrations"]
-        GH["GitHub REST API"]
-        Gemini["Google Gemini Pro Model"]
-    end
+    F -->|Analyze Repository| API[⚡ FastAPI Backend]
 
-    Dash -->|"POST /api/analyze"| Router
-    Comp -->|"POST /api/compare"| Router
-    Chat -->|"POST /api/chat"| Router
+    API --> G[🐙 GitHub REST API]
+    API --> AI[🤖 Google Gemini 2.5 Flash]
+    API --> DB[(🗄️ SQLite Database)]
 
-    Router -->|"Fetch repo stats"| GH
-    Router --> GeminiClient
-    GeminiClient -->|"Format prompts"| Gemini
-    Router -.->|"Use stats fallback if no API key"| Mock
-    
-    Gemini -->|"JSON Reports"| Router
-    Mock -->|"Deterministic JSON"| Router
-    Router -->|"Update charts & state"| Client
+    G --> API
+    AI --> API
+    DB --> API
+
+    API --> R[📊 Trust Analysis Engine]
+    R --> D[📈 Trust Report Dashboard]
+    R --> C[⚖️ Repository Comparison]
+    R --> CHAT[💬 AI Chat Assistant]
+    R --> S[📉 Benchmark & Simulation]
+
+    D --> F
+    C --> F
+    CHAT --> F
+    S --> F
 ```
 
 ---
