@@ -157,11 +157,25 @@ Gen-AI-Hackathon/
    git clone https://github.com/CapedCrusader77/Gen-AI-Hackathon.git
    cd Gen-AI-Hackathon
    ```
-2. **Install dependencies**:
+2. **Backend setup**:
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate        # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   cp ../.env.example .env         # then fill in GITHUB_TOKEN and GEMINI_API_KEY
+   ```
+3. **Frontend setup**:
+   ```
+   cd ../frontend
+   npm install
+   cp .env.example .env.local      # set VITE_API_BASE_URL
+   ```
+4. **Install dependencies**:
    ```bash
    npm install
    ```
-3. **Configure Environment Variables**:
+5. **Configure Environment Variables**:
    Copy the example file to `.env`:
    ```bash
    
@@ -207,6 +221,38 @@ GitHub Repository URL
 Answers questions regarding the analyzed repository.
 * **Body**: `{"question": "Should I adopt this in healthcare?", "repoData": { ... }}`
 * **Response**: High-fidelity architectural and compliance recommendations tailored to the query context.
+
+---
+## 🔄 API Workflow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant BE as FastAPI Backend
+    participant GH as GitHub API
+    participant AI as Gemini API
+
+    U->>FE: Paste repo URL
+    FE->>BE: POST /api/analyze { repo_url }
+    BE->>GH: Fetch metadata, contributors, commits, releases
+    GH-->>BE: Raw repository data
+    BE->>BE: Parse dependencies + run scoring engine
+    BE->>AI: Send structured signals + scoring context
+    AI-->>BE: Trust report (score, risks, strengths, summary)
+    BE-->>FE: JSON Trust Report
+    FE-->>U: Render Trust Report Dashboard
+```
+---
+
+## 🚀 Future Scope
+
+- 🔮 **Future Risk Prediction** — forecast repo health trajectory using historical activity trends
+- 😖 **Repository Regret Score** — quantify likely long-term maintenance pain of adopting a dependency
+- 📊 **BigQuery Analytics Dashboard** — aggregate trust trends across analyzed repos
+- ⚡ **NVIDIA RAPIDS Acceleration** — GPU-accelerated scoring for large-scale batch analysis
+- 📈 **Looker Dashboard** — executive-level visualization of ecosystem trust data
+- 💬 **AI Chat Assistant** — expanded conversational assistant across multiple repos at once
 
 ---
 
