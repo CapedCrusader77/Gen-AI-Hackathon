@@ -44,7 +44,7 @@ class BenchmarkRequest(BaseModel):
 async def analyze_repo(req: AnalyzeRequest):
     repo_name = parse_repository(req.url)
     if not repo_name:
-        raise HTTPException(status_code=400, detail="Invalid GitHub repository identifier. Use format owner/repo.")
+        raise HTTPException(status_code=400, detail="Invalid GitHub repository link. Use a link like https://github.com/owner/repo.")
         
     try:
         # Fetch GitHub parameters
@@ -125,14 +125,14 @@ async def analyze_repo(req: AnalyzeRequest):
 @app.post("/api/compare")
 async def compare_repos(req: CompareRequest):
     if not req.urls or len(req.urls) < 1:
-        raise HTTPException(status_code=400, detail="Provide at least one repository identifier.")
+        raise HTTPException(status_code=400, detail="Provide at least one repository link.")
         
     try:
         repos_data = []
         for url in req.urls:
             repo_name = parse_repository(url)
             if not repo_name:
-                raise HTTPException(status_code=400, detail=f"Invalid repository string: {url}")
+                raise HTTPException(status_code=400, detail=f"Invalid repository link: {url}")
             telemetry = await fetch_repo_telemetry(repo_name)
             repos_data.append(telemetry)
             

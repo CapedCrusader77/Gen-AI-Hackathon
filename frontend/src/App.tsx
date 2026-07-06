@@ -598,7 +598,7 @@ export default function App() {
             <Search className="absolute left-3 top-2.5 w-4 height-4 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Analyze owner/repo (e.g. facebook/react)" 
+              placeholder="Enter repository link (e.g. https://github.com/facebook/react)" 
               className="bg-slate-900/90 border border-sky-950/70 focus:border-sky-500/80 text-sm text-slate-200 pl-10 pr-4 py-2 rounded w-full outline-none transition-all font-mono"
               value={repoInput}
               onChange={(e) => setRepoInput(e.target.value)}
@@ -1409,7 +1409,7 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row gap-2 mt-4">
                   <input 
                     type="text" 
-                    placeholder="Enter repositories separated by commas (e.g. facebook/react, vuejs/core, angular/angular)" 
+                    placeholder="Enter repository links separated by commas (e.g. https://github.com/facebook/react, https://github.com/vuejs/core)" 
                     className="flex-1 bg-slate-900 border border-sky-950/80 rounded px-3 py-2.5 text-xs font-mono text-slate-200 outline-none focus:border-sky-500"
                     value={compareInputs}
                     onChange={(e) => setCompareInputs(e.target.value)}

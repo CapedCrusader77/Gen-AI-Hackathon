@@ -53,10 +53,17 @@ LICENSE_DB = {
 
 def parse_repository(input_url: str):
     value = input_url.strip()
-    value = re.sub(r"\.git$/?", "", value)
-    value = value.rstrip("/")
-    match = re.search(r"(?:github\.com/)?([\w.-]+)/([\w.-]+)$", value, re.IGNORECASE)
-    return f"{match.group(1)}/{match.group(2)}" if match else None
+    if "git@github.com:" in value:
+        value = value.replace("git@github.com:", "https://github.com/")
+    value = re.sub(r"\.git(?:/)?$", "", value)
+    match = re.search(r"github\.com/([^/]+)/([^/?#]+)", value, re.IGNORECASE)
+    if match:
+        return f"{match.group(1)}/{match.group(2)}"
+    parts = [p for p in value.split("/") if p]
+    if len(parts) >= 2:
+        if parts[0].lower() not in ["http:", "https:", "www.github.com", "github.com"]:
+            return f"{parts[0]}/{parts[1]}"
+    return None
 
 async def query_github(client: httpx.AsyncClient, path: str, allow_not_found: bool = False):
     headers = {
